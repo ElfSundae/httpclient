@@ -92,6 +92,27 @@ class HttpClientTest extends TestCase
         $client = new TestClient(['foo' => 'bar']);
         $this->assertEquals(['def' => 'def', 'foo' => 'bar'], $client->getOptions());
     }
+
+    public function testRequest()
+    {
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')->once()->with('GET', '/url/path/', ['foo' => 'bar'])->andReturn('response');
+
+        $client = (new TestClient)->removeOptions()->setClientForTesting($guzzle);
+        $client->request('/url/path/', 'GET', ['foo' => 'bar']);
+        $this->assertSame('response', $client->getResponse());
+    }
+
+    public function testWithExceptionsOn()
+    {
+        $this->expectException(TestException::class);
+
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')->once()->andThrow(new TestException);
+        $client = (new TestClient)->setClientForTesting($guzzle);
+        $client->withExceptions(true);
+        $client->request('/');
+    }
 }
 
 class TestClient extends HttpClient
@@ -106,4 +127,8 @@ class TestClient extends HttpClient
 
         return $this;
     }
+}
+
+class TestException extends \Exception
+{
 }
