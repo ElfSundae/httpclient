@@ -130,6 +130,23 @@ class HttpClient
     }
 
     /**
+     * Remove one or many options using "dot" notation.
+     *
+     * @param  string|array|null $key
+     * @return $this
+     */
+    public function removeOptions($key)
+    {
+        if (is_null($key)) {
+            $this->options = [];
+        }
+
+        Arr::forget($this->options, ...$key);
+
+        return $this;
+    }
+
+    /**
      * Set a request option using "dot" notation.
      *
      * @param  string  $key
