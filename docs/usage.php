@@ -20,7 +20,6 @@ try {
     dump(__LINE__, $e->getCode(), $e->getMessage());
 }
 
-
 dump(__LINE__,
     (new HttpClient)
     ->formParams(['user' => 'Elf Sundae'])
@@ -35,12 +34,12 @@ $client->option('cookies', new \GuzzleHttp\Cookie\CookieJar())
     ->cert('/path/server.pem')
     ->debug(true)
     ->httpErrors(false)
-    ->progress(function () {})
+    ->progress(function () {
+    })
     ->verify(false)
     ->version(2)
     ->acceptJson();
 dump(__LINE__, $client->getOptions());
-
 
 function dump($line, ...$data)
 {
