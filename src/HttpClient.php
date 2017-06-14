@@ -75,6 +75,8 @@ class HttpClient
     public function withExceptions($throws)
     {
         $this->withExceptions = (bool) $throws;
+
+        return $this;
     }
 
     /**
