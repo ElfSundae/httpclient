@@ -18,18 +18,24 @@ class HttpClientTest extends TestCase
     public function testGetOptions()
     {
         $client = new TestClient;
-        $this->assertEquals(['def' => 'def'], $client->getOptions());
+        $this->assertEquals(['key' => 'value'], $client->getOptions());
+    }
+
+    public function testGetOption()
+    {
+        $client = new TestClient;
+        $this->assertEquals('value', $client->getOption('key'));
     }
 
     public function testMergeOptions()
     {
         $client = new TestClient;
         $client->options(['foo' => 'bar']);
-        $this->assertEquals(['def' => 'def', 'foo' => 'bar'], $client->getOptions());
+        $this->assertEquals(['key' => 'value', 'foo' => 'bar'], $client->getOptions());
 
         $client->options(['foo' => ['1'], 'test' => null]);
         $this->assertEquals([
-            'def' => 'def',
+            'key' => 'value',
             'foo' => [
                 'bar',
                 '1',
@@ -74,6 +80,41 @@ class HttpClientTest extends TestCase
         $this->assertEquals(['foo' => 'bar', 'test_abc' => null], $client->getOptions());
     }
 
+    public function testSetRequestHeader()
+    {
+        $client = (new HttpClient)->removeOptions();
+        $client->header('foo', 'bar');
+        $this->assertEquals(['headers' => ['foo' => 'bar']], $client->getOptions());
+    }
+
+    public function testSetRequestContentType()
+    {
+        $client = (new HttpClient)->removeOptions();
+        $client->contentType('foo');
+        $this->assertEquals(['headers' => ['Content-Type' => 'foo']], $client->getOptions());
+    }
+
+    public function testSetRequestAcceptType()
+    {
+        $client = (new HttpClient)->removeOptions();
+        $client->accept('foo');
+        $this->assertEquals(['headers' => ['Accept' => 'foo']], $client->getOptions());
+    }
+
+    public function testSetRequestAcceptTypeToJson()
+    {
+        $client = (new HttpClient)->removeOptions();
+        $client->acceptJson();
+        $this->assertTrue(str_contains($client->getOption('headers.Accept'), 'json'));
+    }
+
+    public function testSetRequestSaveTo()
+    {
+        $client = (new HttpClient)->removeOptions();
+        $client->saveTo('foo');
+        $this->assertEquals('foo', $client->getOption('sink'));
+    }
+
     public function testCreateClientWithBaseUriString()
     {
         $client = new HttpClient('/foobar');
@@ -83,7 +124,7 @@ class HttpClientTest extends TestCase
     public function testCreateClientWithOptions()
     {
         $client = new TestClient(['foo' => 'bar']);
-        $this->assertEquals(['def' => 'def', 'foo' => 'bar'], $client->getOptions());
+        $this->assertEquals(['key' => 'value', 'foo' => 'bar'], $client->getOptions());
     }
 
     public function testRequest()
@@ -111,7 +152,7 @@ class HttpClientTest extends TestCase
 class TestClient extends HttpClient
 {
     protected $options = [
-        'def' => 'def',
+        'key' => 'value',
     ];
 
     public function setClientForTesting($client)
