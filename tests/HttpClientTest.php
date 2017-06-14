@@ -76,8 +76,8 @@ class HttpClientTest extends TestCase
 
     public function testCreateClientWithBaseUriString()
     {
-        $client = new HttpClient('foobar');
-        $this->assertEquals('foobar', (string) $client->getClient()->getConfig('base_uri'));
+        $client = new HttpClient('/foobar');
+        $this->assertEquals('/foobar', (string) $client->getClient()->getConfig('base_uri'));
     }
 
     public function testCreateClientWithOptions()
