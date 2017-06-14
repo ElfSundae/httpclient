@@ -140,7 +140,7 @@ class HttpClient
         if (is_null($key)) {
             $this->options = [];
         } else {
-            Arr::forget($this->options, ...$key);
+            Arr::forget($this->options, is_array($key) ? $key : func_get_args());
         }
 
         return $this;
