@@ -77,9 +77,9 @@ class HttpClient
     public function __construct($config = null)
     {
         if (is_string($config)) {
-            $this->mergeOptions(['base_uri' => $config]);
+            $this->options(['base_uri' => $config]);
         } elseif (is_array($config)) {
-            $this->mergeOptions($config);
+            $this->options($config);
         }
 
         $this->client = new Client($this->options);
@@ -122,7 +122,7 @@ class HttpClient
      * @param  array  $options
      * @return $this
      */
-    public function mergeOptions(array ...$options)
+    public function options(array ...$options)
     {
         $this->options = array_merge_recursive($this->options, ...$options);
 
