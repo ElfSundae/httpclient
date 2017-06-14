@@ -136,6 +136,17 @@ class HttpClient
     }
 
     /**
+     * Get a request option using "dot" notation.
+     *
+     * @param  string $key
+     * @return mixed
+     */
+    public function getOption($key)
+    {
+        return Arr::get($this->options, $key);
+    }
+
+    /**
      * Set the request header.
      *
      * @param  string  $name
