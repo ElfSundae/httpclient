@@ -8,13 +8,6 @@ use GuzzleHttp\Client as Guzzle;
 
 class HttpClientTest extends TestCase
 {
-    public function testSharedClientInstance()
-    {
-        $this->assertInstanceOf(HttpClient::class, HttpClient::client());
-        $this->assertSame(HttpClient::client(), HttpClient::client());
-        $this->assertSame(HttpClient::client(), TestClient::client());
-    }
-
     public function testGetClient()
     {
         $client = new TestClient;

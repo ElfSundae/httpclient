@@ -34,40 +34,11 @@ class HttpClient
     ];
 
     /**
-     * Indicates catching Guzzle exceptions.
+     * Indicates whether throws Guzzle exceptions.
      *
      * @var bool
      */
     protected $withExceptions = false;
-
-    /**
-     * The shared http client.
-     *
-     * @var static
-     */
-    protected static $sharedClient;
-
-    /**
-     * Get the shared http client.
-     *
-     * @return static
-     */
-    public static function client()
-    {
-        return static::$sharedClient ?: static::$sharedClient = new static;
-    }
-
-    /**
-     * Handle class methods.
-     *
-     * @param  string  $method
-     * @param  array  $args
-     * @return mixed
-     */
-    public static function __callStatic($method, $args)
-    {
-        return call_user_func_array([static::$sharedClient, $method], $args);
-    }
 
     /**
      * Create a http client instance.
