@@ -135,13 +135,13 @@ class HttpClient
      * @param  string|array|null $key
      * @return $this
      */
-    public function removeOptions($key)
+    public function removeOptions($key = null)
     {
         if (is_null($key)) {
             $this->options = [];
+        } else {
+            Arr::forget($this->options, ...$key);
         }
-
-        Arr::forget($this->options, ...$key);
 
         return $this;
     }
