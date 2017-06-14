@@ -1,0 +1,44 @@
+{
+    "name": "elfsundae/httpclient",
+    "type": "library",
+    "description": "A wrapper of Guzzle HTTP client.",
+    "keywords": ["httpclient"],
+    "homepage": "https://github.com/ElfSundae/httpclient",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Elf Sundae",
+            "email": "elf.sundae@gmail.com",
+            "homepage": "https://0x123.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.4",
+        "illuminate/support": ">=4.2"
+    },
+    "require-dev": {
+        "mockery/mockery": "0.9.*",
+        "phpunit/phpunit": "~5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "ElfSundae\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ElfSundae\\Test\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
