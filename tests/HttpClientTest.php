@@ -5,6 +5,7 @@ namespace ElfSundae\Test;
 use Mockery as m;
 use ElfSundae\HttpClient;
 use GuzzleHttp\Client as Guzzle;
+use Psr\Http\Message\ResponseInterface;
 
 class HttpClientTest extends TestCase
 {
@@ -137,7 +138,7 @@ class HttpClientTest extends TestCase
         $this->assertSame('response', $client->getResponse());
     }
 
-    public function testPostRequest()
+    public function testRequestWithPostMethod()
     {
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')->once()->with('POST', '/url/path/', ['foo' => 'bar'])->andReturn('response');
@@ -170,6 +171,73 @@ class HttpClientTest extends TestCase
         $client = (new TestClient)->removeOptions()->setClientForTesting($guzzle);
         $client->requestJson('/url/path/', 'GET', ['foo' => 'bar']);
         $this->assertSame('response', $client->getResponse());
+    }
+
+    public function testRequestJsonWithPostMethod()
+    {
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')->once()->with('POST', '/url/path/', m::on(function ($arg) {
+            return is_array($arg) &&
+            array_get($arg, 'foo') === 'bar' &&
+            str_contains(array_get($arg, 'headers.Accept'), 'json');
+        }))->andReturn('response');
+
+        $client = (new TestClient)->removeOptions()->setClientForTesting($guzzle);
+        $client->requestJson('/url/path/', 'POST', ['foo' => 'bar']);
+        $this->assertSame('response', $client->getResponse());
+    }
+
+    public function testFetchContent()
+    {
+        $guzzle = m::mock(Guzzle::class);
+        $response = m::mock(ResponseInterface::class);
+        $response->shouldReceive('getBody')->once()->andReturn('response');
+        $guzzle->shouldReceive('request')->once()->with('POST', '/url', [])->andReturn($response);
+
+        $client = (new TestClient)->removeOptions()->setClientForTesting($guzzle);
+        $result = $client->fetchContent('/url', 'POST');
+        $this->assertSame($response, $client->getResponse());
+        $this->assertSame('response', $result);
+    }
+
+    public function testFetchJson()
+    {
+        $guzzle = m::mock(Guzzle::class);
+        $response = m::mock(ResponseInterface::class);
+        $response->shouldReceive('getBody')->once()->andReturn(json_encode(['foo' => 'bar']));
+        $guzzle->shouldReceive('request')->once()->with('POST', '/url', m::on(function ($arg) {
+            return is_array($arg) &&
+                str_contains(array_get($arg, 'headers.Accept'), 'json');
+        }))->andReturn($response);
+
+        $client = (new TestClient)->removeOptions()->setClientForTesting($guzzle);
+        $result = $client->fetchJson('/url', 'POST');
+        $this->assertSame($response, $client->getResponse());
+        $this->assertSame(['foo' => 'bar'], $result);
+    }
+
+    public function testMagicRequestMethods()
+    {
+        foreach (['get', 'head', 'put', 'post', 'patch', 'delete'] as $method) {
+            $guzzle = m::mock(Guzzle::class);
+            $guzzle->shouldReceive('request')->once()->with($method, '/url', [])->andReturn('response');
+
+            $client = (new TestClient)->removeOptions()->setClientForTesting($guzzle);
+            $client->{$method}('/url');
+            $this->assertSame('response', $client->getResponse());
+        }
+    }
+
+    public function testMagicRequestMethodsWithOptions()
+    {
+        foreach (['get', 'head', 'put', 'post', 'patch', 'delete'] as $method) {
+            $guzzle = m::mock(Guzzle::class);
+            $guzzle->shouldReceive('request')->once()->with($method, '/url', ['foo' => 'bar'])->andReturn('response');
+
+            $client = (new TestClient)->removeOptions()->setClientForTesting($guzzle);
+            $client->{$method}('/url', ['foo' => 'bar']);
+            $this->assertSame('response', $client->getResponse());
+        }
     }
 }
 
