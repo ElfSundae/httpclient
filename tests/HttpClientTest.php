@@ -137,6 +137,16 @@ class HttpClientTest extends TestCase
         $this->assertSame('response', $client->getResponse());
     }
 
+    public function testPostRequest()
+    {
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')->once()->with('POST', '/url/path/', ['foo' => 'bar'])->andReturn('response');
+
+        $client = (new TestClient)->removeOptions()->setClientForTesting($guzzle);
+        $client->request('/url/path/', 'POST', ['foo' => 'bar']);
+        $this->assertSame('response', $client->getResponse());
+    }
+
     public function testWithExceptionsOn()
     {
         $this->expectException(TestException::class);
@@ -146,6 +156,20 @@ class HttpClientTest extends TestCase
         $client = (new TestClient)->setClientForTesting($guzzle);
         $client->withExceptions(true);
         $client->request('/');
+    }
+
+    public function testRequestJson()
+    {
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')->once()->with('GET', '/url/path/', m::on(function ($arg) {
+            return is_array($arg) &&
+            array_get($arg, 'foo') === 'bar' &&
+            str_contains(array_get($arg, 'headers.Accept'), 'json');
+        }))->andReturn('response');
+
+        $client = (new TestClient)->removeOptions()->setClientForTesting($guzzle);
+        $client->requestJson('/url/path/', 'GET', ['foo' => 'bar']);
+        $this->assertSame('response', $client->getResponse());
     }
 }
 
