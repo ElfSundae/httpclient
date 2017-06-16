@@ -6,6 +6,7 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 class HttpClient
 {
@@ -349,15 +350,21 @@ class HttpClient
         return $this->requestJson($url, $method, $options)->getJson($assoc);
     }
 
-    /**
-     * Any unhandled methods will be sent to $this->option() to set request option.
-     *
-     * @param  string  $name
-     * @param  array  $args
-     * @return $this
-     */
-    public function __call($name, $args)
+    public function __call($method, $args)
     {
-        return $this->option(Str::snake($name), $args[0]);
+        // Handle magic request methods
+        if (in_array($method, ['get', 'head', 'put', 'post', 'patch', 'delete'])) {
+            if (count($args) < 1) {
+                throw new InvalidArgumentException('Magic request methods require an URI and optional options array');
+            }
+
+            $url = $args[0];
+            $options = isset($args[1]) ? $args[1] : [];
+
+            return $this->request($url, $method, $options);
+        }
+
+        // Handle setting request options
+        return $this->option(Str::snake($method), $args[0]);
     }
 }
