@@ -353,15 +353,26 @@ class HttpClient
     public function __call($method, $args)
     {
         // Handle magic request methods
-        if (in_array($method, ['get', 'head', 'put', 'post', 'patch', 'delete'])) {
+        if (
+            in_array($method, [
+                'get', 'head', 'put', 'post', 'patch', 'delete',
+                'getJson', 'putJson', 'postJson', 'patchJson', 'deleteJson',
+            ])
+        ) {
             if (count($args) < 1) {
                 throw new InvalidArgumentException('Magic request methods require an URI and optional options array');
             }
 
             $url = $args[0];
             $options = isset($args[1]) ? $args[1] : [];
+            if (substr($method, -4) === 'Json') {
+                $thisMethod = 'requestJson';
+                $method = substr($method, 0, -4);
+            } else {
+                $thisMethod = 'request';
+            }
 
-            return $this->request($url, $method, $options);
+            return $this->{$thisMethod}($url, $method, $options);
         }
 
         // Handle setting request options
