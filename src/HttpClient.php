@@ -286,7 +286,7 @@ class HttpClient
     }
 
     /**
-     * Make request to an URL.
+     * Make request to a URL.
      *
      * @param  string  $url
      * @param  string  $method
@@ -309,7 +309,7 @@ class HttpClient
     }
 
     /**
-     * Make request to an URL, expecting JSON content.
+     * Make request to a URL, expecting JSON content.
      *
      * @param  string  $url
      * @param  string  $method
