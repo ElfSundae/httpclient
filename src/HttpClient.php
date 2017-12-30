@@ -122,16 +122,27 @@ class HttpClient
     }
 
     /**
-     * Merge request options.
+     * Set the request options.
      *
      * @param  array  $options
      * @return $this
      */
-    public function options(array ...$options)
+    public function setOptions(array $options)
     {
-        $this->options = array_merge_recursive($this->options, ...$options);
+        $this->options = $options;
 
         return $this;
+    }
+
+    /**
+     * Merge the request options.
+     *
+     * @param  array  $options
+     * @return $this
+     */
+    public function options(array $options)
+    {
+        return $this->setOptions($options + $this->options);
     }
 
     /**
