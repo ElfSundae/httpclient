@@ -330,19 +330,19 @@ class HttpClient
     }
 
     /**
-     * Make request to a URL.
+     * Make request to a URI.
      *
-     * @param  string  $url
+     * @param  string  $uri
      * @param  string  $method
      * @param  array  $options
      * @return $this
      */
-    public function request($url, $method = 'GET', $options = [])
+    public function request($uri, $method = 'GET', array $options = [])
     {
-        $options = array_merge_recursive($this->options, $options);
-
         try {
-            $this->response = $this->client->request($method, $url, $options);
+            $this->response = $this->client->request(
+                $method, $uri, $options += $this->options
+            );
         } catch (Exception $e) {
             if ($this->withExceptions) {
                 throw $e;
@@ -353,47 +353,55 @@ class HttpClient
     }
 
     /**
-     * Make request to a URL, expecting JSON content.
+     * Make request to a URI, expecting JSON content.
      *
-     * @param  string  $url
+     * @param  string  $uri
      * @param  string  $method
      * @param  array  $options
      * @return $this
      */
-    public function requestJson($url, $method = 'GET', $options = [])
+    public function requestJson($uri, $method = 'GET', array $options = [])
     {
         Arr::set($options, 'headers.Accept', 'application/json');
 
-        return $this->request($url, $method, $options);
+        return $this->request($uri, $method, $options);
     }
 
     /**
-     * Request the URL and return the response content.
+     * Request the URI and return the response content.
      *
-     * @param  string  $url
+     * @param  string  $uri
      * @param  string  $method
      * @param  array  $options
      * @return string|null
      */
-    public function fetchContent($url, $method = 'GET', $options = [])
+    public function fetchContent($uri, $method = 'GET', array $options = [])
     {
-        return $this->request($url, $method, $options)->getContent();
+        return $this->request($uri, $method, $options)->getContent();
     }
 
     /**
-     * Request the URL and return the JSON decoded response content.
+     * Request the URI and return the JSON decoded response content.
      *
-     * @param  string  $url
+     * @param  string  $uri
      * @param  string  $method
      * @param  array  $options
      * @param  bool  $assoc
      * @return mixed
      */
-    public function fetchJson($url, $method = 'GET', $options = [], $assoc = true)
+    public function fetchJson($uri, $method = 'GET', array $options = [], $assoc = true)
     {
-        return $this->requestJson($url, $method, $options)->getJson($assoc);
+        return $this->requestJson($uri, $method, $options)->getJson($assoc);
     }
 
+    /**
+     * Dynamically methods to set request option, send request, or get
+     * response properties.
+     *
+     * @param  string  $method
+     * @param  array  $args
+     * @return mixed
+     */
     public function __call($method, $args)
     {
         // Handle magic request methods
