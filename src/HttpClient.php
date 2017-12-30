@@ -11,6 +11,16 @@ use InvalidArgumentException;
 class HttpClient
 {
     /**
+     * The default request options.
+     *
+     * @var array
+     */
+    protected static $defaultOptions = [
+        'connect_timeout' => 5,
+        'timeout' => 25,
+    ];
+
+    /**
      * The Guzzle client.
      *
      * @var \GuzzleHttp\Client
@@ -29,10 +39,7 @@ class HttpClient
      *
      * @var array
      */
-    protected $options = [
-        'connect_timeout' => 5,
-        'timeout' => 25,
-    ];
+    protected $options = [];
 
     /**
      * Indicates whether throws Guzzle exceptions.
@@ -40,6 +47,27 @@ class HttpClient
      * @var bool
      */
     protected $withExceptions = false;
+
+    /**
+     * Get the default request options.
+     *
+     * @return array
+     */
+    public static function defaultOptions()
+    {
+        return static::$defaultOptions;
+    }
+
+    /**
+     * Set the default request options.
+     *
+     * @param  array  $options
+     * @return void
+     */
+    public static function setDefaultOptions(array $options)
+    {
+        static::$defaultOptions = $options;
+    }
 
     /**
      * Create a http client instance.

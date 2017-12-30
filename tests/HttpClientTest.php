@@ -15,6 +15,12 @@ class HttpClientTest extends TestCase
         m::close();
     }
 
+    public function testSetDefaultOptions()
+    {
+        HttpClient::setDefaultOptions(['foo' => 'bar']);
+        $this->assertEquals(['foo' => 'bar'], HttpClient::defaultOptions());
+    }
+
     public function testGetClient()
     {
         $client = new TestClient;
