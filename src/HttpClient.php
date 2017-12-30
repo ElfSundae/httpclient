@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
 
 class HttpClient
 {
@@ -72,17 +73,19 @@ class HttpClient
     /**
      * Create a http client instance.
      *
-     * @param  array|string  $config  base_uri or any request options
+     * @param  array|string|\Psr\Http\Message\UriInterface  $config  base URI or any request options
      */
-    public function __construct($config = null)
+    public function __construct($config = [])
     {
-        if (is_string($config)) {
-            $this->options(['base_uri' => $config]);
-        } elseif (is_array($config)) {
-            $this->options($config);
+        if (is_string($config) || $config instanceof UriInterface) {
+            $config = ['base_uri' => $config];
+        } elseif (! is_array($config)) {
+            throw new InvalidArgumentException('config must be a string, UriInterface, or an array');
         }
 
-        $this->client = new Client($this->options);
+        $this->client = new Client(
+            $this->options = $config + static::defaultOptions()
+        );
     }
 
     /**
