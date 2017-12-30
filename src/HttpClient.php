@@ -165,13 +165,15 @@ class HttpClient
     /**
      * Set a request option using "dot" notation.
      *
-     * @param  string  $key
+     * @param  string|array  $key
      * @param  mixed  $value
      * @return $this
      */
-    public function option($key, $value)
+    public function option($key, $value = null)
     {
-        if ($key) {
+        $keys = is_array($key) ? $key : [$key => $value];
+
+        foreach ($keys as $key => $value) {
             Arr::set($this->options, $key, $value);
         }
 
