@@ -324,8 +324,8 @@ class HttpClient
      */
     public function getJson($assoc = true)
     {
-        if ($content = $this->getContent()) {
-            return json_decode($content, $assoc);
+        if ($this->response) {
+            return json_decode($this->getContent(), $assoc);
         }
     }
 
