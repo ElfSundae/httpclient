@@ -4,11 +4,17 @@ namespace ElfSundae\Test;
 
 use Mockery as m;
 use ElfSundae\HttpClient;
+use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client as Guzzle;
 use Psr\Http\Message\ResponseInterface;
 
 class HttpClientTest extends TestCase
 {
+    protected function tearDown()
+    {
+        m::close();
+    }
+
     public function testGetClient()
     {
         $client = new TestClient;
