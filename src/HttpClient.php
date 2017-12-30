@@ -311,8 +311,8 @@ class HttpClient
      */
     public function getContent()
     {
-        if ($body = $this->getBody()) {
-            return (string) $body;
+        if ($this->response) {
+            return (string) $this->getBody();
         }
     }
 
