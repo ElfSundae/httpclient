@@ -1,4 +1,4 @@
-# httpclient
+# HTTP Client
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/elfsundae/httpclient.svg?style=flat-square)](https://packagist.org/packages/elfsundae/httpclient)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
@@ -12,8 +12,6 @@
 A wrapper of [Guzzle](https://github.com/guzzle/guzzle) HTTP client.
 
 ## Installation
-
-You can install this package via the [Composer](https://getcomposer.org) manager:
 
 ```sh
 $ composer require elfsundae/httpclient
