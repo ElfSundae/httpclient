@@ -5,7 +5,6 @@ All notable changes to `httpclient` will be documented in this file.
 ## [Unreleased]
 
 - Added support to configure global default request options, via static methods: `defaultOptions`, `setDefaultOptions`
-- Added `setOptions` method
 - `option` method can accept array
 - Rename `withExceptions()` to `catchExceptions()`, added `areExceptionsCaught()`
 
