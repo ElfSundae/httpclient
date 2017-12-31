@@ -73,20 +73,20 @@ class HttpClient
     /**
      * Create a http client instance.
      *
-     * @param  array|string|\Psr\Http\Message\UriInterface  $config  base URI or any request options
+     * @param  array|string|\Psr\Http\Message\UriInterface  $options  base URI or any request options
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct($config = [])
+    public function __construct($options = [])
     {
-        if (is_string($config) || $config instanceof UriInterface) {
-            $config = ['base_uri' => $config];
-        } elseif (! is_array($config)) {
+        if (is_string($options) || $options instanceof UriInterface) {
+            $options = ['base_uri' => $options];
+        } elseif (! is_array($options)) {
             throw new InvalidArgumentException('config must be a string, UriInterface, or an array');
         }
 
         $this->client = new Client(
-            $this->options = $config + static::defaultOptions()
+            $this->options = $options + static::defaultOptions()
         );
     }
 
