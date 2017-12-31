@@ -74,6 +74,8 @@ class HttpClient
      * Create a http client instance.
      *
      * @param  array|string|\Psr\Http\Message\UriInterface  $config  base URI or any request options
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct($config = [])
     {
@@ -145,7 +147,7 @@ class HttpClient
     }
 
     /**
-     * Remove one or many options using "dot" notation.
+     * Remove options using "dot" notation.
      *
      * @param  string|array|null $key
      * @return $this
