@@ -2,6 +2,7 @@
 
 namespace ElfSundae;
 
+use Closure;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
@@ -270,50 +271,22 @@ class HttpClient
     }
 
     /**
-     * Get the status code of response.
+     * Get data from the response.
      *
-     * @return int
-     */
-    public function getStatusCode()
-    {
-        if ($this->response) {
-            return $this->response->getStatusCode();
-        }
-    }
-
-    /**
-     * Get the response header value.
-     *
-     * @param  string  $name
+     * @param  string|\Closure  $callback
+     * @param  array  $parameters
+     * @param  mixed  $default
      * @return mixed
      */
-    public function getHeader($name)
+    protected function getResponseData($callback, array $parameters = [], $default = null)
     {
         if ($this->response) {
-            return $this->response->getHeaderLine($name);
+            return $callback instanceof Closure
+                ? $callback($this->response, ...$parameters)
+                : $this->response->$callback(...$parameters);
         }
-    }
 
-    /**
-     * Get all response headers values.
-     *
-     * @return array
-     */
-    public function getHeaders()
-    {
-        return $this->response ? $this->response->getHeaders() : [];
-    }
-
-    /**
-     * Get response body.
-     *
-     * @return \GuzzleHttp\Psr7\Stream|null
-     */
-    public function getBody()
-    {
-        if ($this->response) {
-            return $this->response->getBody();
-        }
+        return $default;
     }
 
     /**
@@ -407,6 +380,19 @@ class HttpClient
     }
 
     /**
+     * Get the dynamic response methods.
+     *
+     * @return array
+     */
+    protected function getDynamicResponseMethods()
+    {
+        return [
+            'getStatusCode', 'getReasonPhrase', 'getProtocolVersion',
+            'getHeaders', 'hasHeader', 'getHeader', 'getHeaderLine', 'getBody',
+        ];
+    }
+
+    /**
      * Dynamically methods to set request option, send request, or get
      * response properties.
      *
@@ -426,6 +412,10 @@ class HttpClient
             $options = isset($args[1]) ? $args[1] : [];
 
             return $this->request($url, $method, $options);
+        }
+
+        if (in_array($method, $this->getDynamicResponseMethods())) {
+            return $this->getResponseData($method, $args);
         }
 
         // Handle setting request options
