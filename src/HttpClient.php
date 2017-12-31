@@ -300,16 +300,14 @@ class HttpClient
     }
 
     /**
-     * Get the decoded JSON response.
+     * Get the JSON-decoded response content.
      *
      * @param  bool  $assoc
      * @return mixed
      */
     public function json($assoc = true)
     {
-        if ($this->response) {
-            return json_decode($this->getContent(), $assoc);
-        }
+        return json_decode($this->getContent(), $assoc);
     }
 
     /**
@@ -376,7 +374,7 @@ class HttpClient
      * @param  string  $uri
      * @param  string  $method
      * @param  array  $options
-     * @return string|null
+     * @return string
      */
     public function fetchContent($uri, $method = 'GET', array $options = [])
     {
@@ -384,17 +382,16 @@ class HttpClient
     }
 
     /**
-     * Request the URI and return the JSON decoded response content.
+     * Request the URI and return the JSON-decoded response content.
      *
      * @param  string  $uri
      * @param  string  $method
      * @param  array  $options
-     * @param  bool  $assoc
      * @return mixed
      */
-    public function fetchJson($uri, $method = 'GET', array $options = [], $assoc = true)
+    public function fetchJson($uri, $method = 'GET', array $options = [])
     {
-        return $this->requestJson($uri, $method, $options)->getJson($assoc);
+        return $this->requestJson($uri, $method, $options)->json();
     }
 
     /**
