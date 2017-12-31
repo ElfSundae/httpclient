@@ -134,16 +134,27 @@ class HttpClient
     }
 
     /**
-     * Merge the request options.
+     * Set the request options.
+     *
+     * @param  array  $options
+     * @return $this
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+
+        return $this;
+    }
+
+    /**
+     * Merge the given options to the request options.
      *
      * @param  array  $options
      * @return $this
      */
     public function mergeOptions(array $options)
     {
-        $this->options = $options + $this->options;
-
-        return $this;
+        return $this->setOptions($options + $this->options);
     }
 
     /**
