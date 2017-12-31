@@ -318,7 +318,7 @@ class HttpClient
      * @param  array  $options
      * @return $this
      */
-    public function request($uri, $method = 'GET', array $options = [])
+    public function request($uri = '', $method = 'GET', array $options = [])
     {
         $options += $this->options;
 
@@ -343,7 +343,7 @@ class HttpClient
      * @param  array  $options
      * @return $this
      */
-    public function requestJson($uri, $method = 'GET', array $options = [])
+    public function requestJson($uri = '', $method = 'GET', array $options = [])
     {
         $options = $this->addAcceptableJsonType($options + $this->options);
 
@@ -376,7 +376,7 @@ class HttpClient
      * @param  array  $options
      * @return string
      */
-    public function fetchContent($uri, $method = 'GET', array $options = [])
+    public function fetchContent($uri = '', $method = 'GET', array $options = [])
     {
         return $this->request($uri, $method, $options)->getContent();
     }
@@ -389,7 +389,7 @@ class HttpClient
      * @param  array  $options
      * @return mixed
      */
-    public function fetchJson($uri, $method = 'GET', array $options = [])
+    public function fetchJson($uri = '', $method = 'GET', array $options = [])
     {
         return $this->requestJson($uri, $method, $options)->json();
     }
