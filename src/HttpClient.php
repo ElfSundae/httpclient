@@ -43,11 +43,11 @@ class HttpClient
     protected $options = [];
 
     /**
-     * Indicates whether throws Guzzle exceptions.
+     * Indicate whether to catch Guzzle exceptions.
      *
      * @var bool
      */
-    protected $withExceptions = false;
+    protected $catchExceptions = true;
 
     /**
      * Get the default request options.
@@ -99,14 +99,14 @@ class HttpClient
     }
 
     /**
-     * Trun on/off Guzzle exceptions.
+     * Set whether to catch Guzzle exceptions or not.
      *
-     * @param  bool  $throws
+     * @param  bool  $catch
      * @return $this
      */
-    public function withExceptions($throws)
+    public function catchExceptions($catch)
     {
-        $this->withExceptions = (bool) $throws;
+        $this->catchExceptions = (bool) $catch;
 
         return $this;
     }
@@ -344,7 +344,7 @@ class HttpClient
                 $method, $uri, $options += $this->options
             );
         } catch (Exception $e) {
-            if ($this->withExceptions) {
+            if (! $this->catchExceptions) {
                 throw $e;
             }
         }
