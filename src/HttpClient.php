@@ -300,12 +300,12 @@ class HttpClient
     }
 
     /**
-     * Get JSON decoded response content.
+     * Get the decoded JSON response.
      *
      * @param  bool  $assoc
      * @return mixed
      */
-    public function getJson($assoc = true)
+    public function json($assoc = true)
     {
         if ($this->response) {
             return json_decode($this->getContent(), $assoc);
