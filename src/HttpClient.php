@@ -364,7 +364,6 @@ class HttpClient
 
         if (! Str::contains($accept, ['/json', '+json'])) {
             $accept = rtrim('application/json, '.$accept, ', ');
-
             Arr::set($options, 'headers.Accept', $accept);
         }
 
