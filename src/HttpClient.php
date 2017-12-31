@@ -322,10 +322,12 @@ class HttpClient
      */
     public function request($uri, $method = 'GET', array $options = [])
     {
+        $options += $this->options;
+
+        $this->response = null;
+
         try {
-            $this->response = $this->client->request(
-                $method, $uri, $options += $this->options
-            );
+            $this->response = $this->client->request($method, $uri, $options);
         } catch (Exception $e) {
             if (! $this->catchExceptions) {
                 throw $e;
