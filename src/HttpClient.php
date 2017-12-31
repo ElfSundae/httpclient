@@ -159,7 +159,7 @@ class HttpClient
     }
 
     /**
-     * Remove options using "dot" notation.
+     * Remove request options using "dot" notation.
      *
      * @param  string|array|null $key
      * @return $this
@@ -290,15 +290,13 @@ class HttpClient
     }
 
     /**
-     * Get response content.
+     * Get the response content.
      *
-     * @return string|null
+     * @return string
      */
     public function getContent()
     {
-        if ($this->response) {
-            return (string) $this->getBody();
-        }
+        return (string) $this->getBody();
     }
 
     /**
