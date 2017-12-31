@@ -99,6 +99,16 @@ class HttpClient
     }
 
     /**
+     * Get whether to catch Guzzle exceptions or not.
+     *
+     * @return bool
+     */
+    public function areExceptionsCaught()
+    {
+        return $this->catchExceptions;
+    }
+
+    /**
      * Set whether to catch Guzzle exceptions or not.
      *
      * @param  bool  $catch
