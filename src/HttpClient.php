@@ -139,7 +139,7 @@ class HttpClient
      * @param  array  $options
      * @return $this
      */
-    public function options(array $options)
+    public function mergeOptions(array $options)
     {
         $this->options = $options + $this->options;
 
