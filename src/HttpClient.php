@@ -240,12 +240,12 @@ class HttpClient
      * Specify where the body of a response will be saved.
      * Set the "sink" option.
      *
-     * @param  mixed  $value
+     * @param  mixed  $dest
      * @return $this
      */
-    public function saveTo($value)
+    public function saveTo($dest)
     {
-        return $this->option('sink', $value);
+        return $this->removeOptions('save_to')->option('sink', $dest);
     }
 
     /**
