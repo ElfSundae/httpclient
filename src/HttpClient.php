@@ -395,6 +395,30 @@ class HttpClient
     }
 
     /**
+     * Get the dynamic request methods.
+     *
+     * @return array
+     */
+    protected function getDynamicRequestMethods()
+    {
+        return [
+            'get', 'head', 'put', 'post', 'patch', 'delete', 'options',
+        ];
+    }
+
+    /**
+     * Get the dynamic requestJson methods.
+     *
+     * @return array
+     */
+    protected function getDynamicRequestJsonMethods()
+    {
+        return [
+            'get', 'put', 'post', 'patch', 'delete',
+        ];
+    }
+
+    /**
      * Get the dynamic response methods.
      *
      * @return array
@@ -408,32 +432,49 @@ class HttpClient
     }
 
     /**
-     * Dynamically methods to set request option, send request, or get
-     * response properties.
+     * Insert HTTP method to the parameters.
+     *
+     * @param  array  $parameters
+     * @return array
+     */
+    protected function insertHttpMethodToParameters($method, array $parameters)
+    {
+        $method = strtoupper($method);
+
+        if (empty($parameters)) {
+            $parameters = ['', $method];
+        } else {
+            array_splice($parameters, 1, 0, $method);
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * Dynamically send request, get response data, or set request option.
      *
      * @param  string  $method
-     * @param  array  $args
+     * @param  array  $parameters
      * @return mixed
      */
-    public function __call($method, $args)
+    public function __call($method, $parameters)
     {
-        // Handle magic request methods
-        if (in_array($method, ['get', 'head', 'put', 'post', 'patch', 'delete'])) {
-            if (count($args) < 1) {
-                throw new InvalidArgumentException('Magic request methods require an URI and optional options array');
-            }
+        if (in_array($method, $this->getDynamicRequestMethods())) {
+            return $this->request(
+                ...$this->insertHttpMethodToParameters($method, $parameters)
+            );
+        }
 
-            $url = $args[0];
-            $options = isset($args[1]) ? $args[1] : [];
-
-            return $this->request($url, $method, $options);
+        if (in_array($method, $this->getDynamicRequestJsonMethods())) {
+            return $this->requestJson(
+                ...$this->insertHttpMethodToParameters($method, $parameters)
+            );
         }
 
         if (in_array($method, $this->getDynamicResponseMethods())) {
-            return $this->getResponseData($method, $args);
+            return $this->getResponseData($method, $parameters);
         }
 
-        // Handle setting request options
-        return $this->option(Str::snake($method), $args[0]);
+        return $this->option(Str::snake($method), $parameters[0]);
     }
 }
