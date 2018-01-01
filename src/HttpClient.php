@@ -30,18 +30,18 @@ class HttpClient
     protected $client;
 
     /**
-     * The Guzzle response.
-     *
-     * @var \GuzzleHttp\Psr7\Response
-     */
-    protected $response;
-
-    /**
      * The request options.
      *
      * @var array
      */
     protected $options = [];
+
+    /**
+     * The Guzzle response.
+     *
+     * @var \GuzzleHttp\Psr7\Response
+     */
+    protected $response;
 
     /**
      * Indicate whether to catch Guzzle exceptions.
@@ -83,12 +83,14 @@ class HttpClient
         if (is_string($options) || $options instanceof UriInterface) {
             $options = ['base_uri' => $options];
         } elseif (! is_array($options)) {
-            throw new InvalidArgumentException('config must be a string, UriInterface, or an array');
+            throw new InvalidArgumentException('Options must be a string, UriInterface, or an array');
         }
 
         $this->client = new Client(
-            $this->options = $options + static::defaultOptions()
+            array_replace_recursive(static::defaultOptions(), $options)
         );
+
+        $this->options = $this->client->getConfig();
     }
 
     /**
@@ -135,42 +137,27 @@ class HttpClient
     }
 
     /**
-     * Set the request options.
+     * Merge the given options to the request options.
      *
-     * @param  array  $options
+     * @param  array  $options,...
      * @return $this
      */
-    public function setOptions(array $options)
+    public function mergeOptions(array ...$options)
     {
-        $this->options = $options;
+        $this->options = array_replace_recursive($this->options, ...$options);
 
         return $this;
     }
 
     /**
-     * Merge the given options to the request options.
+     * Remove one or many request options using "dot" notation.
      *
-     * @param  array  $options
+     * @param  array|string  $keys
      * @return $this
      */
-    public function mergeOptions(array $options)
+    public function removeOptions($keys)
     {
-        return $this->setOptions($options + $this->options);
-    }
-
-    /**
-     * Remove request options using "dot" notation.
-     *
-     * @param  string|array|null $key
-     * @return $this
-     */
-    public function removeOptions($key = null)
-    {
-        if (is_null($key)) {
-            $this->options = [];
-        } else {
-            Arr::forget($this->options, is_array($key) ? $key : func_get_args());
-        }
+        Arr::forget($this->options, is_array($keys) ? $keys : func_get_args());
 
         return $this;
     }
@@ -178,7 +165,7 @@ class HttpClient
     /**
      * Get a request option using "dot" notation.
      *
-     * @param  string $key
+     * @param  string  $key
      * @return mixed
      */
     public function getOption($key)
@@ -205,7 +192,7 @@ class HttpClient
     }
 
     /**
-     * Set the request header.
+     * Set a request header.
      *
      * @param  string  $name
      * @param  mixed  $value
@@ -239,7 +226,7 @@ class HttpClient
     }
 
     /**
-     * Set the request accept type to JSON.
+     * Set the request accept type to "application/json".
      *
      * @return $this
      */
@@ -249,7 +236,7 @@ class HttpClient
     }
 
     /**
-     * Specify where the body of a response will be saved.
+     * Specify where the body of the response will be saved.
      * Set the "sink" option.
      *
      * @param  mixed  $dest
@@ -320,7 +307,7 @@ class HttpClient
      */
     public function request($uri = '', $method = 'GET', array $options = [])
     {
-        $options += $this->options;
+        $options = array_replace_recursive($this->options, $options);
 
         $this->response = null;
 
@@ -345,7 +332,9 @@ class HttpClient
      */
     public function requestJson($uri = '', $method = 'GET', array $options = [])
     {
-        $options = $this->addAcceptableJsonType($options + $this->options);
+        $options = $this->addAcceptableJsonType(
+            array_replace_recursive($this->options, $options)
+        );
 
         return $this->request($uri, $method, $options);
     }
