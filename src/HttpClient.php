@@ -475,6 +475,6 @@ class HttpClient
             return $this->getResponseData($method, $parameters);
         }
 
-        return $this->option(Str::snake($method), $parameters[0]);
+        return $this->option(Str::snake($method), ...$parameters);
     }
 }
