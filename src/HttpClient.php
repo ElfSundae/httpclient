@@ -247,10 +247,10 @@ class HttpClient
      */
     public function request($uri = '', $method = 'GET', array $options = [])
     {
+        $this->response = null;
+
         $method = strtoupper($method);
         $options = array_replace_recursive($this->options, $options);
-
-        $this->response = null;
 
         try {
             $this->response = $this->client->request($method, $uri, $options);
