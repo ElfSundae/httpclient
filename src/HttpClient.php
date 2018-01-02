@@ -375,11 +375,11 @@ class HttpClient
     }
 
     /**
-     * Get the dynamic request methods.
+     * Get all allowed magic request methods.
      *
      * @return array
      */
-    protected function getDynamicRequestMethods()
+    protected function getMagicRequestMethods()
     {
         return [
             'get', 'head', 'put', 'post', 'patch', 'delete', 'options',
@@ -387,23 +387,11 @@ class HttpClient
     }
 
     /**
-     * Get the dynamic requestJson methods.
+     * Get all allowed magic response methods.
      *
      * @return array
      */
-    protected function getDynamicRequestJsonMethods()
-    {
-        return [
-            'get', 'put', 'post', 'patch', 'delete',
-        ];
-    }
-
-    /**
-     * Get the dynamic response methods.
-     *
-     * @return array
-     */
-    protected function getDynamicResponseMethods()
+    protected function getMagicResponseMethods()
     {
         return [
             'getStatusCode', 'getReasonPhrase', 'getProtocolVersion',
@@ -412,24 +400,52 @@ class HttpClient
     }
 
     /**
-     * Insert HTTP method to the parameters.
+     * Determine if the given method is a magic request method.
      *
+     * @param  string  $method
+     * @param  string  &$requestMethod
+     * @param  string  &$httpMethod
+     * @return bool
+     */
+    protected function isMagicRequest($method, &$requestMethod, &$httpMethod)
+    {
+        if (strlen($method) > 4 && $pos = strrpos($method, 'Json', -4)) {
+            $httpMethod = substr($method, 0, $pos);
+            $requestMethod = 'requestJson';
+        } else {
+            $httpMethod = $method;
+            $requestMethod = 'request';
+        }
+
+        if (in_array($httpMethod, $this->getMagicRequestMethods())) {
+            return true;
+        }
+
+        $httpMethod = $requestMethod = null;
+
+        return false;
+    }
+
+    /**
+     * Get parameters for $this->request() from the magic request method.
+     *
+     * @param  string  $httpMethod
      * @param  array  $parameters
      * @return array
      */
-    protected function insertHttpMethodToParameters($method, array $parameters)
+    protected function getRequestParameters($httpMethod, array $parameters)
     {
         if (empty($parameters)) {
-            $parameters = ['', $method];
+            $parameters = ['', $httpMethod];
         } else {
-            array_splice($parameters, 1, 0, $method);
+            array_splice($parameters, 1, 0, $httpMethod);
         }
 
         return $parameters;
     }
 
     /**
-     * Dynamically send request, get response data, or set request option.
+     * Handle magic method to send request, get response data, or set request options.
      *
      * @param  string  $method
      * @param  array  $parameters
@@ -437,19 +453,11 @@ class HttpClient
      */
     public function __call($method, $parameters)
     {
-        if (in_array($method, $this->getDynamicRequestMethods())) {
-            return $this->request(
-                ...$this->insertHttpMethodToParameters($method, $parameters)
-            );
+        if ($this->isMagicRequest($method, $request, $httpMethod)) {
+            return $this->{$request}(...$this->getRequestParameters($httpMethod, $parameters));
         }
 
-        if (in_array($method, $this->getDynamicRequestJsonMethods())) {
-            return $this->requestJson(
-                ...$this->insertHttpMethodToParameters($method, $parameters)
-            );
-        }
-
-        if (in_array($method, $this->getDynamicResponseMethods())) {
+        if (in_array($method, $this->getMagicResponseMethods())) {
             return $this->getResponseData($method, $parameters);
         }
 
