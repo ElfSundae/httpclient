@@ -247,6 +247,7 @@ class HttpClient
      */
     public function request($uri = '', $method = 'GET', array $options = [])
     {
+        $method = strtoupper($method);
         $options = array_replace_recursive($this->options, $options);
 
         $this->response = null;
@@ -418,8 +419,6 @@ class HttpClient
      */
     protected function insertHttpMethodToParameters($method, array $parameters)
     {
-        $method = strtoupper($method);
-
         if (empty($parameters)) {
             $parameters = ['', $method];
         } else {
