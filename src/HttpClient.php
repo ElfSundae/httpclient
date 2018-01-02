@@ -127,13 +127,32 @@ class HttpClient
     }
 
     /**
-     * Get the request options.
+     * Get the request options using "dot" notation.
      *
-     * @return array
+     * @param  string|null  $key
+     * @return mixed
      */
-    public function getOptions()
+    public function getOption($key = null)
     {
-        return $this->options;
+        return Arr::get($this->options, $key);
+    }
+
+    /**
+     * Set the request options using "dot" notation.
+     *
+     * @param  string|array  $key
+     * @param  mixed  $value
+     * @return $this
+     */
+    public function option($key, $value = null)
+    {
+        $keys = is_array($key) ? $key : [$key => $value];
+
+        foreach ($keys as $key => $value) {
+            Arr::set($this->options, $key, $value);
+        }
+
+        return $this;
     }
 
     /**
@@ -158,35 +177,6 @@ class HttpClient
     public function removeOptions($keys)
     {
         Arr::forget($this->options, is_array($keys) ? $keys : func_get_args());
-
-        return $this;
-    }
-
-    /**
-     * Get a request option using "dot" notation.
-     *
-     * @param  string  $key
-     * @return mixed
-     */
-    public function getOption($key)
-    {
-        return Arr::get($this->options, $key);
-    }
-
-    /**
-     * Set a request option using "dot" notation.
-     *
-     * @param  string|array  $key
-     * @param  mixed  $value
-     * @return $this
-     */
-    public function option($key, $value = null)
-    {
-        $keys = is_array($key) ? $key : [$key => $value];
-
-        foreach ($keys as $key => $value) {
-            Arr::set($this->options, $key, $value);
-        }
 
         return $this;
     }
