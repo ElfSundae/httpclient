@@ -161,7 +161,7 @@ class HttpClient
      * @param  array  $options,...
      * @return $this
      */
-    public function mergeOptions(array ...$options)
+    public function mergeOption(array ...$options)
     {
         $this->options = array_replace_recursive($this->options, ...$options);
 
@@ -174,7 +174,7 @@ class HttpClient
      * @param  array|string  $keys
      * @return $this
      */
-    public function removeOptions($keys)
+    public function removeOption($keys)
     {
         Arr::forget($this->options, is_array($keys) ? $keys : func_get_args());
 
