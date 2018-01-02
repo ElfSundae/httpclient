@@ -427,7 +427,7 @@ class HttpClient
     }
 
     /**
-     * Get parameters for $this->request() from the magic request method.
+     * Get parameters for $this->request() from the magic request methods.
      *
      * @param  string  $httpMethod
      * @param  array  $parameters
@@ -445,7 +445,8 @@ class HttpClient
     }
 
     /**
-     * Handle magic method to send request, get response data, or set request options.
+     * Handle magic method to send request, get response data, or set
+     * request options.
      *
      * @param  string  $method
      * @param  array  $parameters
