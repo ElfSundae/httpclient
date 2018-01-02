@@ -238,56 +238,6 @@ class HttpClient
     }
 
     /**
-     * Get the Guzzle response instance.
-     *
-     * @return \GuzzleHttp\Psr7\Response|null
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * Get data from the response.
-     *
-     * @param  string|\Closure  $callback
-     * @param  array  $parameters
-     * @param  mixed  $default
-     * @return mixed
-     */
-    protected function getResponseData($callback, array $parameters = [], $default = null)
-    {
-        if ($this->response) {
-            return $callback instanceof Closure
-                ? $callback($this->response, ...$parameters)
-                : $this->response->$callback(...$parameters);
-        }
-
-        return $default;
-    }
-
-    /**
-     * Get the response content.
-     *
-     * @return string
-     */
-    public function getContent()
-    {
-        return (string) $this->getBody();
-    }
-
-    /**
-     * Get the JSON-decoded response content.
-     *
-     * @param  bool  $assoc
-     * @return mixed
-     */
-    public function json($assoc = true)
-    {
-        return json_decode($this->getContent(), $assoc);
-    }
-
-    /**
      * Make request to a URI.
      *
      * @param  string  $uri
@@ -371,6 +321,56 @@ class HttpClient
     public function fetchJson($uri = '', $method = 'GET', array $options = [])
     {
         return $this->requestJson($uri, $method, $options)->json();
+    }
+
+    /**
+     * Get the Guzzle response instance.
+     *
+     * @return \GuzzleHttp\Psr7\Response|null
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * Get data from the response.
+     *
+     * @param  string|\Closure  $callback
+     * @param  array  $parameters
+     * @param  mixed  $default
+     * @return mixed
+     */
+    protected function getResponseData($callback, array $parameters = [], $default = null)
+    {
+        if ($this->response) {
+            return $callback instanceof Closure
+                ? $callback($this->response, ...$parameters)
+                : $this->response->$callback(...$parameters);
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get the response content.
+     *
+     * @return string
+     */
+    public function getContent()
+    {
+        return (string) $this->getBody();
+    }
+
+    /**
+     * Get the JSON-decoded response content.
+     *
+     * @param  bool  $assoc
+     * @return mixed
+     */
+    public function json($assoc = true)
+    {
+        return json_decode($this->getContent(), $assoc);
     }
 
     /**
