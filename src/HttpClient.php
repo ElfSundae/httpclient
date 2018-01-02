@@ -234,7 +234,7 @@ class HttpClient
      */
     public function saveTo($dest)
     {
-        return $this->removeOptions('save_to')->option('sink', $dest);
+        return $this->removeOption('save_to')->option('sink', $dest);
     }
 
     /**
