@@ -533,10 +533,10 @@ class HttpClient
 
         if (is_null($optionMethods)) {
             $reflector = new ReflectionClass(RequestOptions::class);
-            $options = array_values(array_diff($reflector->getConstants(), [
-                'synchronous',
-            ]));
-            $optionMethods = array_map([Str::class, 'camel'], $options);
+            $optionMethods = array_map(
+                [Str::class, 'camel'],
+                array_values($reflector->getConstants())
+            );
         }
 
         return $optionMethods;
