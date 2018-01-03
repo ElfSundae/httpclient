@@ -158,7 +158,7 @@ class HttpClient
     /**
      * Merge the given options to the request options.
      *
-     * @param  array  $options,...
+     * @param  array  ...$options
      * @return $this
      */
     public function mergeOption(array ...$options)
@@ -455,7 +455,9 @@ class HttpClient
     public function __call($method, $parameters)
     {
         if ($this->isMagicRequest($method, $request, $httpMethod)) {
-            return $this->{$request}(...$this->getRequestParameters($httpMethod, $parameters));
+            return $this->{$request}(
+                ...$this->getRequestParameters($httpMethod, $parameters)
+            );
         }
 
         if (in_array($method, $this->getMagicResponseMethods())) {
