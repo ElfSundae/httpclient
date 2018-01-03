@@ -4,13 +4,12 @@ All notable changes to `httpclient` will be documented in this file.
 
 ## [Unreleased]
 
-- Added support to configure global default request options, via static method `setDefaultOptions`.
-- Added `getJsonContent()` to get the JSON-decoded response content.
-- Added docblock for the HttpClient class.
-- Dynamically handle all response methods, e.g. `getHeaders`, `getHeaderLine`.
-- Dynamically handle all options setter methods, e.g. `auth`, `body`, `httpErrors`.
-- `option` method can accept array.
-- Renamed `withExceptions()` to `catchExceptions()`, added `areExceptionsCaught()`.
+- Added support to configure global default request options, via static method `setDefaultOptions`
+- Added docblock for the HttpClient class
+- Dynamically handle all response methods, e.g. `getHeaders`, `getHeaderLine`
+- Dynamically handle all options setter methods, e.g. `auth`, `json`, `httpErrors`
+- `option` method can accept array
+- Renamed `withExceptions()` to `catchExceptions()`, added `areExceptionsCaught()`
 - Renamed `options()` to `mergeOptions()`
 - Renamed `removeOptions()` to `removeOption()`
 - Removed `getOptions()`, use `getOption()` instead

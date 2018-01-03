@@ -220,13 +220,13 @@ class HttpClientTest extends TestCase
         $this->assertSame('foobar', $client->getContent());
     }
 
-    public function testGetJsonContent()
+    public function testGetJson()
     {
         $response = new Response(200, [], json_encode(['foo' => 'bar']));
         $handler = MockHandler::createWithMiddleware([$response]);
         $client = new HttpClient(compact('handler'));
         $client->request();
-        $this->assertSame(['foo' => 'bar'], $client->getJsonContent());
+        $this->assertSame(['foo' => 'bar'], $client->getJson());
     }
 
     public function testRequest()

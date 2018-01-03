@@ -355,7 +355,7 @@ class HttpClient
      * @param  bool  $assoc
      * @return mixed
      */
-    public function getJsonContent($assoc = true)
+    public function getJson($assoc = true)
     {
         return json_decode($this->getContent(), $assoc);
     }
@@ -444,7 +444,7 @@ class HttpClient
      */
     public function fetchJson($uri = '', $method = 'GET', array $options = [])
     {
-        return $this->requestJson($uri, $method, $options)->getJsonContent();
+        return $this->requestJson($uri, $method, $options)->getJson();
     }
 
     /**
