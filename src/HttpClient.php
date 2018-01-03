@@ -329,16 +329,16 @@ class HttpClient
      * Get data from the response.
      *
      * @param  string|\Closure  $callback
-     * @param  array  $parameters
+     * @param  mixed  $parameters
      * @param  mixed  $default
      * @return mixed
      */
-    protected function getResponseData($callback, array $parameters = [], $default = null)
+    public function getResponseData($callback, $parameters = [], $default = null)
     {
         if ($this->response) {
             return $callback instanceof Closure
-                ? $callback($this->response, ...$parameters)
-                : $this->response->$callback(...$parameters);
+                ? $callback($this->response, ...(array) $parameters)
+                : $this->response->$callback(...(array) $parameters);
         }
 
         return $default;

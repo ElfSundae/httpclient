@@ -184,6 +184,33 @@ class HttpClientTest extends TestCase
         $this->assertSame($response, $client->getResponse());
     }
 
+    public function testGetResponseData()
+    {
+        $response = new Response(201, ['foo' => 'bar'], 'response body');
+        $handler = MockHandler::createWithMiddleware([$response]);
+        $client = new HttpClient(compact('handler'));
+        $client->request();
+
+        $this->assertSame(201, $client->getResponseData('getStatusCode'));
+        $this->assertSame('bar', $client->getResponseData('getHeaderLine', 'foo'));
+
+        $clone = $client->getResponseData('withHeader', ['X-Foo', 'Bar']);
+        $this->assertInstanceOf(Response::class, $clone);
+        $this->assertSame('Bar', $clone->getHeaderLine('X-Foo'));
+
+        $closure = $client->getResponseData(function ($response, $foo, $bar) {
+            $this->assertSame('foo', $foo);
+            $this->assertSame('bar', $bar);
+
+            return 'closure';
+        }, ['foo', 'bar']);
+        $this->assertSame('closure', $closure);
+
+        $client = new HttpClient;
+        $default = $client->getResponseData('getStatusCode', [], 'default');
+        $this->assertSame('default', $default);
+    }
+
     public function testGetContent()
     {
         $response = new Response(200, [], 'foobar');
