@@ -450,6 +450,19 @@ class HttpClient
     }
 
     /**
+     * Get the option key for the given magic option method.
+     *
+     * @param  string  $method
+     * @return string|null
+     */
+    protected function getOptionKeyForMethod($method)
+    {
+        if (in_array($method, $this->getMagicOptionMethods())) {
+            return Str::snake($method);
+        }
+    }
+
+    /**
      * Get parameters for $this->request() from the magic request methods.
      *
      * @param  string  $httpMethod
@@ -490,12 +503,12 @@ class HttpClient
             return $this->getResponseData($method, $parameters);
         }
 
-        if (in_array($method, $this->getMagicOptionMethods())) {
+        if ($option = $this->getOptionKeyForMethod($method)) {
             if (empty($parameters)) {
                 throw new InvalidArgumentException("Method [$method] needs one argument.");
             }
 
-            return $this->option(Str::snake($method), $parameters[0]);
+            return $this->option($option, $parameters[0]);
         }
 
         throw new BadMethodCallException("Method [$method] does not exist.");
