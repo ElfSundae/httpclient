@@ -35,7 +35,7 @@ use Psr\Http\Message\UriInterface;
  * @method string getHeaderLine(string $header)
  * @method \Psr\Http\Message\StreamInterface getBody()
  * @method $this allowRedirects(bool|array $value)
- * @method $this auth(array $value)
+ * @method $this auth(array|string|null $value)
  * @method $this body(mixed $value)
  * @method $this cert(string|array $value)
  * @method $this cookies(bool|\GuzzleHttp\Cookie\CookieJarInterface $value)
