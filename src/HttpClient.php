@@ -74,7 +74,7 @@ class HttpClient
      */
     protected static $defaultOptions = [
         'connect_timeout' => 5,
-        'timeout' => 30,
+        'timeout' => 20,
         'http_errors' => false,
     ];
 
