@@ -83,7 +83,7 @@ class HttpClientTest extends TestCase
         $this->assertArraySubset(['a' => 'A', 'b' => 'B'], $client->getOption());
     }
 
-    public function testMergeOption()
+    public function testMergeOptions()
     {
         $client = new HttpClient([
             'a' => 'A',
@@ -92,7 +92,7 @@ class HttpClientTest extends TestCase
                 'b2' => 'B2',
             ],
         ]);
-        $client->mergeOption([
+        $client->mergeOptions([
             'a' => 'AA',
             'b' => [
                 'b2' => 'BB2',
@@ -347,6 +347,7 @@ class HttpClientTest extends TestCase
         $client->request();
         $this->assertSame(202, $client->getStatusCode());
         $this->assertSame('2', $client->getProtocolVersion());
+        $this->assertTrue($client->hasHeader('foo'));
         $this->assertSame('bar', $client->getHeaderLine('foo'));
         $this->assertSame('response body', (string) $client->getBody());
     }
@@ -364,7 +365,7 @@ class HttpClientTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Method [json] needs one argument.');
-        $client->json();
+        $client->body();
     }
 
     public function testBadMethodCall()

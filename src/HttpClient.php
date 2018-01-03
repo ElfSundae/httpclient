@@ -13,6 +13,58 @@ use InvalidArgumentException;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 
+/**
+ * @method $this get(string|UriInterface $uri = '', array $options = [])
+ * @method $this head(string|UriInterface $uri = '', array $options = [])
+ * @method $this post(string|UriInterface $uri = '', array $options = [])
+ * @method $this put(string|UriInterface $uri = '', array $options = [])
+ * @method $this patch(string|UriInterface $uri = '', array $options = [])
+ * @method $this delete(string|UriInterface $uri = '', array $options = [])
+ * @method $this options(string|UriInterface $uri = '', array $options = [])
+ * @method $this getJson(string|UriInterface $uri = '', array $options = [])
+ * @method $this postJson(string|UriInterface $uri = '', array $options = [])
+ * @method $this putJson(string|UriInterface $uri = '', array $options = [])
+ * @method $this patchJson(string|UriInterface $uri = '', array $options = [])
+ * @method $this deleteJson(string|UriInterface $uri = '', array $options = [])
+ * @method int getStatusCode()
+ * @method string getReasonPhrase()
+ * @method string getProtocolVersion()
+ * @method array getHeaders()
+ * @method bool hasHeader(string $header)
+ * @method array getHeader(string $header)
+ * @method string getHeaderLine(string $header)
+ * @method \Psr\Http\Message\StreamInterface getBody()
+ * @method $this allowRedirects(bool|array $value)
+ * @method $this auth(array $value)
+ * @method $this body(mixed $value)
+ * @method $this cert(string|array $value)
+ * @method $this cookies(bool|\GuzzleHttp\Cookie\CookieJarInterface $value)
+ * @method $this connectTimeout(float $value)
+ * @method $this debug(bool|resource $value)
+ * @method $this decodeContent(bool $value)
+ * @method $this delay(int|float $value)
+ * @method $this expect(bool|int $value)
+ * @method $this formParams(array $value)
+ * @method $this headers(array $value)
+ * @method $this httpErrors(bool $value)
+ * @method $this json(mixed $value)
+ * @method $this multipart(array $value)
+ * @method $this onHeaders(callable $value)
+ * @method $this onStats(callable $value)
+ * @method $this progress(callable $value)
+ * @method $this proxy(string|array $value)
+ * @method $this query(array|string $value)
+ * @method $this sink(string|resource|\Psr\Http\Message\StreamInterface $value)
+ * @method $this sslKey(array|string $value)
+ * @method $this stream(bool $value)
+ * @method $this verify(bool|string $value)
+ * @method $this timeout(float $value)
+ * @method $this readTimeout(float $value)
+ * @method $this version(float|string $value)
+ * @method $this forceIpResolve(string $value)
+ *
+ * @see http://docs.guzzlephp.org/en/stable/request-options.html Request Options
+ */
 class HttpClient
 {
     /**
@@ -164,7 +216,7 @@ class HttpClient
      * @param  array  ...$options
      * @return $this
      */
-    public function mergeOption(array ...$options)
+    public function mergeOptions(array ...$options)
     {
         $this->options = array_replace_recursive($this->options, ...$options);
 
@@ -232,7 +284,7 @@ class HttpClient
      * Specify where the body of the response will be saved.
      * Set the "sink" option.
      *
-     * @param  mixed  $dest
+     * @param  string|resource|\Psr\Http\Message\StreamInterface  $dest
      * @return $this
      */
     public function saveTo($dest)
@@ -293,7 +345,7 @@ class HttpClient
     /**
      * Make request to a URI.
      *
-     * @param  string  $uri
+     * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
      * @return $this
@@ -319,7 +371,7 @@ class HttpClient
     /**
      * Make request to a URI, expecting JSON content.
      *
-     * @param  string  $uri
+     * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
      * @return $this
@@ -354,7 +406,7 @@ class HttpClient
     /**
      * Request the URI and return the response content.
      *
-     * @param  string  $uri
+     * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
      * @return string
@@ -367,7 +419,7 @@ class HttpClient
     /**
      * Request the URI and return the JSON-decoded response content.
      *
-     * @param  string  $uri
+     * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
      * @return mixed
@@ -385,7 +437,7 @@ class HttpClient
     protected function getMagicRequestMethods()
     {
         return [
-            'get', 'head', 'put', 'post', 'patch', 'delete', 'options',
+            'get', 'head', 'post', 'put', 'patch', 'delete', 'options',
         ];
     }
 
@@ -458,10 +510,10 @@ class HttpClient
 
         if (is_null($optionMethods)) {
             $reflector = new ReflectionClass(RequestOptions::class);
-            $optionMethods = array_map(
-                [Str::class, 'camel'],
-                array_values($reflector->getConstants())
-            );
+            $options = array_values(array_diff($reflector->getConstants(), [
+                'synchronous',
+            ]));
+            $optionMethods = array_map([Str::class, 'camel'], $options);
         }
 
         return $optionMethods;
