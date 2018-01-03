@@ -250,17 +250,6 @@ class HttpClient
     }
 
     /**
-     * Set the request content type.
-     *
-     * @param  string  $type
-     * @return $this
-     */
-    public function contentType($type)
-    {
-        return $this->header('Content-Type', $type);
-    }
-
-    /**
      * Set the request accept type.
      *
      * @param  string  $type
@@ -279,6 +268,17 @@ class HttpClient
     public function acceptJson()
     {
         return $this->accept('application/json');
+    }
+
+    /**
+     * Set the request content type.
+     *
+     * @param  string  $type
+     * @return $this
+     */
+    public function contentType($type)
+    {
+        return $this->header('Content-Type', $type);
     }
 
     /**
