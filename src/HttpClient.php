@@ -417,6 +417,24 @@ class HttpClient
     }
 
     /**
+     * Get parameters for $this->request() from the magic request methods.
+     *
+     * @param  string  $httpMethod
+     * @param  array  $parameters
+     * @return array
+     */
+    protected function getRequestParameters($httpMethod, array $parameters)
+    {
+        if (empty($parameters)) {
+            $parameters = ['', $httpMethod];
+        } else {
+            array_splice($parameters, 1, 0, $httpMethod);
+        }
+
+        return $parameters;
+    }
+
+    /**
      * Get all allowed magic response methods.
      *
      * @return array
@@ -460,24 +478,6 @@ class HttpClient
         if (in_array($method, $this->getMagicOptionMethods())) {
             return Str::snake($method);
         }
-    }
-
-    /**
-     * Get parameters for $this->request() from the magic request methods.
-     *
-     * @param  string  $httpMethod
-     * @param  array  $parameters
-     * @return array
-     */
-    protected function getRequestParameters($httpMethod, array $parameters)
-    {
-        if (empty($parameters)) {
-            $parameters = ['', $httpMethod];
-        } else {
-            array_splice($parameters, 1, 0, $httpMethod);
-        }
-
-        return $parameters;
     }
 
     /**
