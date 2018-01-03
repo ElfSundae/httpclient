@@ -126,17 +126,6 @@ class HttpClient
      * Create a new http client instance.
      *
      * @param  array|string|\Psr\Http\Message\UriInterface  $options  base URI or any request options
-     * @return static
-     */
-    public static function new($options = [])
-    {
-        return new static($options);
-    }
-
-    /**
-     * Create a new http client instance.
-     *
-     * @param  array|string|\Psr\Http\Message\UriInterface  $options  base URI or any request options
      *
      * @throws \InvalidArgumentException
      */
