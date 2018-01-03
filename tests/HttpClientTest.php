@@ -195,12 +195,13 @@ class HttpClientTest extends TestCase
 
     public function testRequest()
     {
+        $client = new TestClient(['a' => 'A']);
+
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
             ->with('GET', 'path', m::subset(['a' => 'A', 'b' => 'B']))
             ->once()
             ->andReturn('response');
-        $client = new TestClient(['a' => 'A']);
         $client->setGuzzle($guzzle);
         $client->request('path', 'get', ['b' => 'B']);
         $this->assertSame('response', $client->getResponse());
@@ -221,12 +222,13 @@ class HttpClientTest extends TestCase
 
     public function testRequestJson()
     {
+        $client = new TestClient;
+
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
             ->with('POST', 'path', m::subset(['headers' => ['Accept' => 'application/json']]))
             ->once()
             ->andReturn('response');
-        $client = new TestClient;
         $client->setGuzzle($guzzle);
         $client->requestJson('path', 'POST');
 
@@ -294,6 +296,47 @@ class HttpClientTest extends TestCase
             $client->{$method.'Json'}($method.'-path', ['_key_' => $method]);
             $this->assertSame($method, $client->getResponse());
         }
+    }
+
+    public function testMagicRequestParameters()
+    {
+        $client = new TestClient(['foo' => 'bar']);
+
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')
+            ->with('GET', '', m::subset(['foo' => 'bar']))
+            ->once()
+            ->andReturn('response');
+        $client->setGuzzle($guzzle);
+        $client->get();
+
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')
+            ->with('GET', 'path', m::subset(['foo' => 'bar']))
+            ->once()
+            ->andReturn('response');
+        $client->setGuzzle($guzzle);
+        $client->get('path');
+
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')
+            ->with('GET', 'path', m::subset(['foo' => 'bar', 'a' => 'A']))
+            ->once()
+            ->andReturn('response');
+        $client->setGuzzle($guzzle);
+        $client->get('path', ['a' => 'A']);
+
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')
+            ->with('GET', 'path', m::subset([
+                'foo' => 'bar',
+                'a' => 'A',
+                'headers' => ['Accept' => 'application/json'],
+            ]))
+            ->once()
+            ->andReturn('response');
+        $client->setGuzzle($guzzle);
+        $client->getJson('path', ['a' => 'A']);
     }
 
     public function testMagicResponseMethods()
