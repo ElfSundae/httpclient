@@ -364,7 +364,7 @@ class HttpClientTest extends TestCase
         }
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Method [json] needs one argument.');
+        $this->expectExceptionMessage('Method [body] needs one argument.');
         $client->body();
     }
 
