@@ -135,13 +135,6 @@ class HttpClientTest extends TestCase
         $this->assertSame('bar', $client->getOption('headers.foo'));
     }
 
-    public function testSetContentType()
-    {
-        $client = new HttpClient;
-        $client->contentType('foo/bar');
-        $this->assertSame('foo/bar', $client->getOption('headers.Content-Type'));
-    }
-
     public function testSetAccept()
     {
         $client = new HttpClient;
@@ -154,6 +147,20 @@ class HttpClientTest extends TestCase
         $client = new HttpClient;
         $client->acceptJson();
         $this->assertSame('application/json', $client->getOption('headers.Accept'));
+    }
+
+    public function testSetUserAgent()
+    {
+        $client = new HttpClient;
+        $client->userAgent('foo/1.0');
+        $this->assertSame('foo/1.0', $client->getOption('headers.User-Agent'));
+    }
+
+    public function testSetContentType()
+    {
+        $client = new HttpClient;
+        $client->contentType('foo/bar');
+        $this->assertSame('foo/bar', $client->getOption('headers.Content-Type'));
     }
 
     public function testSetSaveTo()

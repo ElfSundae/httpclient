@@ -271,6 +271,17 @@ class HttpClient
     }
 
     /**
+     * Set user agent for the request.
+     *
+     * @param  string  $value
+     * @return $this
+     */
+    public function userAgent($value)
+    {
+        return $this->header('User-Agent', $value);
+    }
+
+    /**
      * Set the request content type.
      *
      * @param  string  $type
