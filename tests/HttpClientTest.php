@@ -350,6 +350,29 @@ class HttpClientTest extends TestCase
         $this->assertSame('bar', $client->getHeaderLine('foo'));
         $this->assertSame('response body', (string) $client->getBody());
     }
+
+    public function testMagicOptionMethods()
+    {
+        $client = new HttpClient;
+
+        // Test all options to ensure there is no same name method in the HttpClient
+        foreach ((new TestClient)->_getMagicOptionMethods() as $method) {
+            $client->$method('foo');
+            $this->assertSame('foo', $client->getOption(snake_case($method)));
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Method [json] needs one argument.');
+        $client->json();
+    }
+
+    public function testBadMethodCall()
+    {
+        $client = new HttpClient;
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Method [fooBar] does not exist.');
+        $client->fooBar();
+    }
 }
 
 class TestClient extends HttpClient
@@ -359,6 +382,11 @@ class TestClient extends HttpClient
         $this->client = $client;
 
         return $this;
+    }
+
+    public function _getMagicOptionMethods()
+    {
+        return $this->getMagicOptionMethods();
     }
 }
 

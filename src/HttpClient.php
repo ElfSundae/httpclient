@@ -4,10 +4,13 @@ namespace ElfSundae;
 
 use Closure;
 use Exception;
+use ReflectionClass;
 use GuzzleHttp\Client;
+use BadMethodCallException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 
 class HttpClient
@@ -400,6 +403,26 @@ class HttpClient
     }
 
     /**
+     * Get all allowed magic option methods.
+     *
+     * @return array
+     */
+    protected function getMagicOptionMethods()
+    {
+        static $optionMethods = null;
+
+        if (is_null($optionMethods)) {
+            $reflector = new ReflectionClass(RequestOptions::class);
+            $optionMethods = array_map(
+                [Str::class, 'camel'],
+                array_values($reflector->getConstants())
+            );
+        }
+
+        return $optionMethods;
+    }
+
+    /**
      * Determine if the given method is a magic request method.
      *
      * @param  string  $method
@@ -451,6 +474,9 @@ class HttpClient
      * @param  string  $method
      * @param  array  $parameters
      * @return mixed
+     *
+     * @throws \InvalidArgumentException
+     * @throws \BadMethodCallException
      */
     public function __call($method, $parameters)
     {
@@ -464,6 +490,14 @@ class HttpClient
             return $this->getResponseData($method, $parameters);
         }
 
-        return $this->option(Str::snake($method), ...$parameters);
+        if (in_array($method, $this->getMagicOptionMethods())) {
+            if (empty($parameters)) {
+                throw new InvalidArgumentException("Method [$method] needs one argument.");
+            }
+
+            return $this->option(Str::snake($method), $parameters[0]);
+        }
+
+        throw new BadMethodCallException("Method [$method] does not exist.");
     }
 }
