@@ -29,6 +29,8 @@ class HttpClientTest extends TestCase
         $client = new HttpClient;
         $this->assertInstanceOf(HttpClient::class, $client);
         $this->assertInstanceOf(Guzzle::class, $client->getClient());
+
+        $this->assertInstanceOf(HttpClient::class, HttpClient::new());
     }
 
     public function testCreateWithOptions()
