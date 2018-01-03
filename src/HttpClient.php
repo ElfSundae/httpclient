@@ -390,6 +390,33 @@ class HttpClient
     }
 
     /**
+     * Determine if the given method is a magic request method.
+     *
+     * @param  string  $method
+     * @param  string  &$requestMethod
+     * @param  string  &$httpMethod
+     * @return bool
+     */
+    protected function isMagicRequestMethod($method, &$requestMethod, &$httpMethod)
+    {
+        if (strlen($method) > 4 && $pos = strrpos($method, 'Json', -4)) {
+            $httpMethod = substr($method, 0, $pos);
+            $requestMethod = 'requestJson';
+        } else {
+            $httpMethod = $method;
+            $requestMethod = 'request';
+        }
+
+        if (in_array($httpMethod, $this->getMagicRequestMethods())) {
+            return true;
+        }
+
+        $httpMethod = $requestMethod = null;
+
+        return false;
+    }
+
+    /**
      * Get all allowed magic response methods.
      *
      * @return array
@@ -423,33 +450,6 @@ class HttpClient
     }
 
     /**
-     * Determine if the given method is a magic request method.
-     *
-     * @param  string  $method
-     * @param  string  &$requestMethod
-     * @param  string  &$httpMethod
-     * @return bool
-     */
-    protected function isMagicRequest($method, &$requestMethod, &$httpMethod)
-    {
-        if (strlen($method) > 4 && $pos = strrpos($method, 'Json', -4)) {
-            $httpMethod = substr($method, 0, $pos);
-            $requestMethod = 'requestJson';
-        } else {
-            $httpMethod = $method;
-            $requestMethod = 'request';
-        }
-
-        if (in_array($httpMethod, $this->getMagicRequestMethods())) {
-            return true;
-        }
-
-        $httpMethod = $requestMethod = null;
-
-        return false;
-    }
-
-    /**
      * Get parameters for $this->request() from the magic request methods.
      *
      * @param  string  $httpMethod
@@ -480,7 +480,7 @@ class HttpClient
      */
     public function __call($method, $parameters)
     {
-        if ($this->isMagicRequest($method, $request, $httpMethod)) {
+        if ($this->isMagicRequestMethod($method, $request, $httpMethod)) {
             return $this->{$request}(
                 ...$this->getRequestParameters($httpMethod, $parameters)
             );
