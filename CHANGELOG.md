@@ -5,8 +5,15 @@ All notable changes to `httpclient` will be documented in this file.
 ## [Unreleased]
 
 - Added support to configure global default request options, via static method `setDefaultOptions`
+- Added `getJsonContent()` to get the JSON-decoded response content
+- Added phpdoc for HttpClient class
+- Dynamically handle all response methods, e.g. `getHeaders`, `getHeaderLine`.
 - `option` method can accept array
-- Rename `withExceptions()` to `catchExceptions()`, added `areExceptionsCaught()`
+- Renamed `withExceptions()` to `catchExceptions()`, added `areExceptionsCaught()`
+- Renamed `options()` to `mergeOption()`
+- Renamed `removeOptions()` to `removeOption()`
+- Removed `getOptions()`, use `getOption()` instead
+- Refactored `__call`
 
 ## 1.1.0 - 2017/06/17
 
