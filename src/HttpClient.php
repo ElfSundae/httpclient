@@ -21,11 +21,6 @@ use Psr\Http\Message\UriInterface;
  * @method $this patch(string|UriInterface $uri = '', array $options = [])
  * @method $this delete(string|UriInterface $uri = '', array $options = [])
  * @method $this options(string|UriInterface $uri = '', array $options = [])
- * @method $this getJson(string|UriInterface $uri = '', array $options = [])
- * @method $this postJson(string|UriInterface $uri = '', array $options = [])
- * @method $this putJson(string|UriInterface $uri = '', array $options = [])
- * @method $this patchJson(string|UriInterface $uri = '', array $options = [])
- * @method $this deleteJson(string|UriInterface $uri = '', array $options = [])
  * @method int getStatusCode()
  * @method string getReasonPhrase()
  * @method string getProtocolVersion()
@@ -465,45 +460,18 @@ class HttpClient
     }
 
     /**
-     * Determine if the given method is a magic request method.
+     * Get parameters for $this->request() from the magic request call.
      *
      * @param  string  $method
-     * @param  string  &$requestMethod
-     * @param  string  &$httpMethod
-     * @return bool
-     */
-    protected function isMagicRequestMethod($method, &$requestMethod, &$httpMethod)
-    {
-        if (strlen($method) > 4 && $pos = strrpos($method, 'Json', -4)) {
-            $httpMethod = substr($method, 0, $pos);
-            $requestMethod = 'requestJson';
-        } else {
-            $httpMethod = $method;
-            $requestMethod = 'request';
-        }
-
-        if (in_array($httpMethod, $this->getMagicRequestMethods())) {
-            return true;
-        }
-
-        $httpMethod = $requestMethod = null;
-
-        return false;
-    }
-
-    /**
-     * Get parameters for $this->request() from the magic request methods.
-     *
-     * @param  string  $httpMethod
      * @param  array  $parameters
      * @return array
      */
-    protected function getRequestParameters($httpMethod, array $parameters)
+    protected function getRequestParameters($method, array $parameters)
     {
         if (empty($parameters)) {
-            $parameters = ['', $httpMethod];
+            $parameters = ['', $method];
         } else {
-            array_splice($parameters, 1, 0, $httpMethod);
+            array_splice($parameters, 1, 0, $method);
         }
 
         return $parameters;
@@ -543,12 +511,12 @@ class HttpClient
     }
 
     /**
-     * Get the option key for the given magic option method.
+     * Get the option name for the given magic option method.
      *
      * @param  string  $method
      * @return string|null
      */
-    protected function getOptionKeyForMethod($method)
+    protected function getOptionNameForMethod($method)
     {
         if (in_array($method, $this->getMagicOptionMethods())) {
             return Str::snake($method);
@@ -568,17 +536,15 @@ class HttpClient
      */
     public function __call($method, $parameters)
     {
-        if ($this->isMagicRequestMethod($method, $request, $httpMethod)) {
-            return $this->{$request}(
-                ...$this->getRequestParameters($httpMethod, $parameters)
-            );
+        if (in_array($method, $this->getMagicRequestMethods())) {
+            return $this->request(...$this->getRequestParameters($method, $parameters));
         }
 
         if (in_array($method, $this->getMagicResponseMethods())) {
             return $this->getResponseData($method, $parameters);
         }
 
-        if ($option = $this->getOptionKeyForMethod($method)) {
+        if ($option = $this->getOptionNameForMethod($method)) {
             if (empty($parameters)) {
                 throw new InvalidArgumentException("Method [$method] needs one argument.");
             }

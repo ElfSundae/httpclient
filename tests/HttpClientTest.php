@@ -320,17 +320,6 @@ class HttpClientTest extends TestCase
             $client->setGuzzle($guzzle);
             $client->$method($method.'-path', ['_key_' => $method]);
             $this->assertSame($method, $client->getResponse());
-
-            $guzzle = m::mock(Guzzle::class);
-            $guzzle->shouldReceive('request')
-                ->with(strtoupper($method), $method.'-path', m::subset([
-                    '_key_' => $method, 'headers' => ['Accept' => 'application/json'],
-                ]))
-                ->once()
-                ->andReturn($method);
-            $client->setGuzzle($guzzle);
-            $client->{$method.'Json'}($method.'-path', ['_key_' => $method]);
-            $this->assertSame($method, $client->getResponse());
         }
     }
 
@@ -348,31 +337,19 @@ class HttpClientTest extends TestCase
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
-            ->with('GET', 'path', m::subset(['foo' => 'bar']))
+            ->with('POST', 'path', m::subset(['foo' => 'bar']))
             ->once()
             ->andReturn('response');
         $client->setGuzzle($guzzle);
-        $client->get('path');
+        $client->post('path');
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
-            ->with('GET', 'path', m::subset(['foo' => 'bar', 'a' => 'A']))
+            ->with('PUT', 'path', m::subset(['foo' => 'bar', 'a' => 'A']))
             ->once()
             ->andReturn('response');
         $client->setGuzzle($guzzle);
-        $client->get('path', ['a' => 'A']);
-
-        $guzzle = m::mock(Guzzle::class);
-        $guzzle->shouldReceive('request')
-            ->with('GET', 'path', m::subset([
-                'foo' => 'bar',
-                'a' => 'A',
-                'headers' => ['Accept' => 'application/json'],
-            ]))
-            ->once()
-            ->andReturn('response');
-        $client->setGuzzle($guzzle);
-        $client->getJson('path', ['a' => 'A']);
+        $client->put('path', ['a' => 'A']);
     }
 
     public function testMagicResponseMethods()
