@@ -355,7 +355,8 @@ class HttpClientTest extends TestCase
     {
         $client = new HttpClient;
 
-        // Test all options to ensure there is no same name method in the HttpClient
+        // Test all options to ensure we did not define the same name method
+        // in HttpClient
         foreach ((new TestClient)->_getMagicOptionMethods() as $method) {
             $client->$method('foo');
             $this->assertSame('foo', $client->getOption(snake_case($method)));
