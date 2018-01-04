@@ -21,6 +21,13 @@ use Psr\Http\Message\UriInterface;
  * @method $this patch(string|UriInterface $uri = '', array $options = [])
  * @method $this delete(string|UriInterface $uri = '', array $options = [])
  * @method $this options(string|UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface getAsync(string|UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface headAsync(string|UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface postAsync(string|UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface putAsync(string|UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface patchAsync(string|UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface deleteAsync(string|UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface optionsAsync(string|UriInterface $uri = '', array $options = [])
  * @method int getStatusCode()
  * @method string getReasonPhrase()
  * @method string getProtocolVersion()
@@ -466,6 +473,33 @@ class HttpClient
     }
 
     /**
+     * Determine if the given method is a magic request method.
+     *
+     * @param  string  $method
+     * @param  string  &$requestMethod
+     * @param  string  &$httpMethod
+     * @return bool
+     */
+    protected function isMagicRequest($method, &$requestMethod, &$httpMethod)
+    {
+        if (strlen($method) > 5 && $pos = strrpos($method, 'Async', -5)) {
+            $httpMethod = substr($method, 0, $pos);
+            $requestMethod = 'requestAsync';
+        } else {
+            $httpMethod = $method;
+            $requestMethod = 'request';
+        }
+
+        if (in_array($httpMethod, $this->getMagicRequestMethods())) {
+            return true;
+        }
+
+        $httpMethod = $requestMethod = null;
+
+        return false;
+    }
+
+    /**
      * Get parameters for $this->request() from the magic request call.
      *
      * @param  string  $method
@@ -542,8 +576,8 @@ class HttpClient
      */
     public function __call($method, $parameters)
     {
-        if (in_array($method, $this->getMagicRequestMethods())) {
-            return $this->request(...$this->getRequestParameters($method, $parameters));
+        if ($this->isMagicRequest($method, $requestMethod, $httpMethod)) {
+            return $this->$requestMethod(...$this->getRequestParameters($httpMethod, $parameters));
         }
 
         if (in_array($method, $this->getMagicResponseMethods())) {

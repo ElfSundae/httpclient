@@ -325,12 +325,21 @@ class HttpClientTest extends TestCase
         foreach (['get', 'head', 'put', 'post', 'patch', 'delete', 'options'] as $method) {
             $guzzle = m::mock(Guzzle::class);
             $guzzle->shouldReceive('request')
-                ->with(strtoupper($method), $method.'-path', m::subset(['_key_' => $method]))
+                ->with(strtoupper($method), 'path', m::subset(['foo' => $method]))
                 ->once()
                 ->andReturn($method);
             $client->setGuzzle($guzzle);
-            $client->$method($method.'-path', ['_key_' => $method]);
+            $client->$method('path', ['foo' => $method]);
             $this->assertSame($method, $client->getResponse());
+
+            $guzzle = m::mock(Guzzle::class);
+            $guzzle->shouldReceive('requestAsync')
+                ->with(strtoupper($method), 'path', m::subset(['foo' => $method]))
+                ->once()
+                ->andReturn($method);
+            $client->setGuzzle($guzzle);
+            $response = $client->{$method.'Async'}('path', ['foo' => $method]);
+            $this->assertSame($method, $response);
         }
     }
 
