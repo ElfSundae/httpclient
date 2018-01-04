@@ -130,7 +130,7 @@ class HttpClient
     }
 
     /**
-     * Create a new http client instance.
+     * Create a new HTTP client instance.
      *
      * @param  array|string|\Psr\Http\Message\UriInterface  $options  base URI or any request options
      *
