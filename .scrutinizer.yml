@@ -1,8 +1,6 @@
 build:
     nodes:
         analysis:
-            project_setup:
-                override: true
             tests:
                 override: [php-scrutinizer-run]
 
@@ -30,4 +28,4 @@ checks:
 tools:
     external_code_coverage:
         timeout: 600
-        runs: 2
+        runs: 4
