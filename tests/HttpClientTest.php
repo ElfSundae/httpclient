@@ -289,6 +289,19 @@ class HttpClientTest extends TestCase
         $client->requestJson('path', 'GET');
     }
 
+    public function testRequestAsync()
+    {
+        $client = new TestClient(['a' => 'A']);
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('requestAsync')
+            ->with('POST', 'path', m::subset(['a' => 'A', 'b' => 'B']))
+            ->once()
+            ->andReturn('promise');
+        $client->setGuzzle($guzzle);
+        $promise = $client->requestAsync('path', 'post', ['b' => 'B']);
+        $this->assertSame('promise', $promise);
+    }
+
     public function testFetchContent()
     {
         $response = new Response(200, [], 'foobar');

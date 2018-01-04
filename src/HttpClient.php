@@ -411,6 +411,23 @@ class HttpClient
     }
 
     /**
+     * Make asynchronous request to a URI.
+     *
+     * @param  string|\Psr\Http\Message\UriInterface  $uri
+     * @param  string  $method
+     * @param  array  $options
+     * @return \GuzzleHttp\Promise\PromiseInterface
+     */
+    public function requestAsync($uri = '', $method = 'GET', array $options = [])
+    {
+        return $this->client->requestAsync(
+            strtoupper($method),
+            $uri,
+            array_replace_recursive($this->options, $options)
+        );
+    }
+
+    /**
      * Request the URI and return the response content.
      *
      * @param  string|\Psr\Http\Message\UriInterface  $uri
