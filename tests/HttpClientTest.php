@@ -18,17 +18,22 @@ class HttpClientTest extends TestCase
         m::close();
     }
 
-    public function testDefaultOptions()
+    public function testInstantiation()
+    {
+        $this->assertInstanceOf(HttpClient::class, new HttpClient);
+        $this->assertInstanceOf(HttpClient::class, HttpClient::create());
+        $this->assertInstanceOf(Guzzle::class, HttpClient::create()->getClient());
+    }
+
+    public function testSetDefaultOptions()
     {
         HttpClient::setDefaultOptions(['foo' => 'bar']);
         $this->assertEquals(['foo' => 'bar'], HttpClient::defaultOptions());
-    }
 
-    public function testInstantiation()
-    {
-        $client = new HttpClient;
-        $this->assertInstanceOf(HttpClient::class, $client);
-        $this->assertInstanceOf(Guzzle::class, $client->getClient());
+        $config = (new HttpClient)->getClient()->getConfig();
+        $this->assertArraySubset(['foo' => 'bar'], $config);
+
+        $this->assertEquals($config, HttpClient::create()->getClient()->getConfig());
     }
 
     public function testCreateWithOptions()
