@@ -19,7 +19,67 @@ $ composer require elfsundae/httpclient
 
 ## Usage
 
-[_TODO_] [ElfSundae\HttpClient](src/HttpClient.php)
+### Create HTTP Client Instance
+
+You can create a HTTP client instance with a base URI or an array of [request options][]:
+
+```php
+use ElfSundae\HttpClient;
+
+$httpbin = new HttpClient('http://httpbin.org');
+
+$github = new HttpClient([
+    'base_uri' => 'https://api.github.com',
+    'timeout' => 20,
+    'headers' => [
+        'User-Agent' => 'HttpClient/2.0',
+    ],
+]);
+```
+
+### Configure Request Options
+
+You can use the `camelCase` key of any [request option][request options] as a method of the client:
+
+```php
+$client = HttpClient::create('http://example.com')
+    ->connectTimeout(5)
+    ->timeout(20)
+    ->httpErrors(false)
+    ->version(2)
+    ->auth(['username', 'password'])
+    ->cookies(true)
+    ->headers([
+        'X-Foo' => 'Bar',
+    ]);
+```
+
+You can also use the `option` method on the client to set request options using "dot" notation:
+
+```php
+$client
+    ->option('headers.Accept', 'application/json')
+    ->option([
+        'cookies' => true,
+        'headers.Content-Type' => 'application/json',
+    ]);
+```
+
+In addition, you may want to use `header`, `accept`, `acceptJson`, `userAgent` and `contentType` methods to set request headers:
+
+```php
+$client
+    ->contentType('text/plain')
+    ->acceptJson()
+    ->userAgent('HttpClient/2.0')
+    ->header('X-Foo', 'bar');
+```
+
+### Global Request Options
+
+### Send Requests
+
+### Response
 
 ## Testing
 
@@ -30,3 +90,5 @@ $ composer test
 ## License
 
 This package is open-sourced software licensed under the [MIT License](LICENSE.md).
+
+[request options]: http://docs.guzzlephp.org/en/stable/request-options.html
