@@ -19,65 +19,7 @@ $ composer require elfsundae/httpclient
 
 ## Usage
 
-```php
-use ElfSundae\HttpClient;
-
-// Create client with base uri
-$client = new HttpClient('https://httpbin.org');
-
-// Create client with any options
-$client = new HttpClient([
-    'base_uri' => 'https://httpbin.org',
-    'timeout' => '10',
-]);
-
-// Make request
-$client->request('/', 'GET', $options)
-
-// Make request expecting JSON content response
-$client->requestJson('/', 'GET', $options)
-
-// Make request and get response content
-$client->requestJson('/path')->getJson();
-// Or
-$client->fetchJson('/path');
-$client->fetchContent('/path');
-
-// Set request options.
-// All Guzzle option keys can be used as methods for a HttpClient instance.
-$client->option('cookies', new \GuzzleHttp\Cookie\CookieJar())
-    ->auth(['username', 'password'])
-    ->cert('/path/server.pem')
-    ->debug(true)
-    ->httpErrors(false)
-    ->progress(function () {})
-    ->verify(false)
-    ->version(2)
-    ->acceptJson()
-    ->getOptions();
-
-// Access response
-$client->getResponse();
-$client->getStatusCode();
-$client->getHeader('Server');
-$client->getHeaders();
-$client->getBody();     // GuzzleHttp\Psr7\Stream
-$client->getContent();  // string
-$client->getJson($assoc = true);    // array
-
-// Parameters
-$client->query(['foo' => 'bar']);
-$client->formParams(['foo' => 'bar']);
-$client->multipart([
-    [
-        'name' => 'avatar',
-        'contents' => fopen('/path/to/file', 'r'),
-        'filename' => 'avatar.png'
-    ],
-]);
-$client->json(['foo' => 'bar']);
-$client->body($data);
-```
+[_TODO_] [ElfSundae\HttpClient](src/HttpClient.php)
 
 ## Testing
 
