@@ -19,16 +19,11 @@
     },
     "require-dev": {
         "mockery/mockery": "~1.0",
-        "phpunit/phpunit": ">=5.7.0"
+        "phpunit/phpunit": "~5.7|~6.0"
     },
     "autoload": {
         "psr-4": {
             "ElfSundae\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "ElfSundae\\Test\\": "tests/"
         }
     },
     "scripts": {

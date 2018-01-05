@@ -1,7 +1,5 @@
 <?php
 
-namespace ElfSundae\Test;
-
 use Mockery as m;
 use GuzzleHttp\Psr7\Uri;
 use ElfSundae\HttpClient;
