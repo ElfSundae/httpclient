@@ -354,25 +354,28 @@ class HttpClientTest extends TestCase
         $guzzle->shouldReceive('request')
             ->with('GET', '', m::subset(['foo' => 'bar']))
             ->once()
-            ->andReturn('response');
+            ->andReturn('response 1');
         $client->setGuzzle($guzzle);
         $client->get();
+        $this->assertSame('response 1', $client->getResponse());
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
             ->with('POST', 'path', m::subset(['foo' => 'bar']))
             ->once()
-            ->andReturn('response');
+            ->andReturn('response 2');
         $client->setGuzzle($guzzle);
         $client->post('path');
+        $this->assertSame('response 2', $client->getResponse());
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
             ->with('PUT', 'path', m::subset(['foo' => 'bar', 'a' => 'A']))
             ->once()
-            ->andReturn('response');
+            ->andReturn('response 3');
         $client->setGuzzle($guzzle);
         $client->put('path', ['a' => 'A']);
+        $this->assertSame('response 3', $client->getResponse());
     }
 
     public function testMagicResponseMethods()
