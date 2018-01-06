@@ -10,7 +10,7 @@ class HelpersTest extends TestCase
         $this->assertInstanceOf(HttpClient::class, http_client());
 
         $client = http_client('http://example.com');
-        $this->assertSame('http://example.com', (string) $client->getClient()->getConfig('base_uri'));
+        $this->assertEquals('http://example.com', $client->getClient()->getConfig('base_uri'));
 
         $client = http_client(['foo' => 'bar']);
         $this->assertArraySubset(['foo' => 'bar'], $client->getClient()->getConfig());
