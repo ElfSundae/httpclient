@@ -271,26 +271,6 @@ class HttpClientTest extends TestCase
         $client->requestJson('path', 'POST');
 
         $this->assertNull($client->getOption('headers.Accept'));
-
-        $client->accept('foo/bar');
-        $this->assertSame('foo/bar', $client->getOption('headers.Accept'));
-        $guzzle = m::mock(Guzzle::class);
-        $guzzle->shouldReceive('request')
-            ->with('PUT', 'path', m::subset(['headers' => ['Accept' => 'application/json,foo/bar']]))
-            ->once()
-            ->andReturn('response');
-        $client->setGuzzle($guzzle);
-        $client->requestJson('path', 'PUT');
-
-        $client->accept('application/json');
-        $this->assertSame('application/json', $client->getOption('headers.Accept'));
-        $guzzle = m::mock(Guzzle::class);
-        $guzzle->shouldReceive('request')
-            ->with('GET', 'path', m::subset(['headers' => ['Accept' => 'application/json']]))
-            ->once()
-            ->andReturn('response');
-        $client->setGuzzle($guzzle);
-        $client->requestJson('path', 'GET');
     }
 
     public function testRequestAsync()

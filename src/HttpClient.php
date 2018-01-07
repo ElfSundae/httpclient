@@ -407,29 +407,9 @@ class HttpClient
      */
     public function requestJson($uri = '', $method = 'GET', array $options = [])
     {
-        $options = $this->addAcceptableJsonType(
-            $this->getMergedOptions($this->options, $options)
-        );
+        Arr::set($options, 'headers.Accept', 'application/json');
 
         return $this->request($uri, $method, $options);
-    }
-
-    /**
-     * Add JSON type to the "Accept" header for the request options.
-     *
-     * @param  array  $options
-     * @return array
-     */
-    protected function addAcceptableJsonType(array $options)
-    {
-        $accept = Arr::get($options, 'headers.Accept', '');
-
-        if (! Str::contains($accept, ['/json', '+json'])) {
-            $accept = rtrim('application/json,'.$accept, ',');
-            Arr::set($options, 'headers.Accept', $accept);
-        }
-
-        return $options;
     }
 
     /**
