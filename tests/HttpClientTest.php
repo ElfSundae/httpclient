@@ -103,17 +103,6 @@ class HttpClientTest extends TestCase
         ], $client->getOption());
     }
 
-    public function testMergeMultiOptions()
-    {
-        $client = new HttpClient(['a' => 'A']);
-        $client->mergeOptions(['b' => 'B'], ['a' => 'AA', 'c' => 'C']);
-        $this->assertArraySubset([
-            'a' => 'AA',
-            'b' => 'B',
-            'c' => 'C',
-        ], $client->getOption());
-    }
-
     public function testRemoveOption()
     {
         $client = new HttpClient([

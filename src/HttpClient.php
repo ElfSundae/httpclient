@@ -150,7 +150,7 @@ class HttpClient
         }
 
         $this->client = new Client(
-            array_replace_recursive(static::defaultOptions(), $options)
+            $this->getMergedOptions(static::defaultOptions(), $options)
         );
 
         $this->options = $this->client->getConfig();
@@ -199,14 +199,25 @@ class HttpClient
     /**
      * Merge the given options to the request options.
      *
-     * @param  array  ...$options
+     * @param  array  $options
      * @return $this
      */
-    public function mergeOptions(...$options)
+    public function mergeOptions(array $options)
     {
-        $this->options = array_replace_recursive($this->options, ...$options);
+        $this->options = $this->getMergedOptions($this->options, $options);
 
         return $this;
+    }
+
+    /**
+     * Get merged given request options.
+     *
+     * @param  array  ...$options
+     * @return array
+     */
+    protected function getMergedOptions(...$options)
+    {
+        return array_replace_recursive(...$options);
     }
 
     /**
@@ -373,7 +384,7 @@ class HttpClient
         $this->response = null;
 
         $method = strtoupper($method);
-        $options = array_replace_recursive($this->options, $options);
+        $options = $this->getMergedOptions($this->options, $options);
 
         try {
             $this->response = $this->client->request($method, $uri, $options);
@@ -397,7 +408,7 @@ class HttpClient
     public function requestJson($uri = '', $method = 'GET', array $options = [])
     {
         $options = $this->addAcceptableJsonType(
-            array_replace_recursive($this->options, $options)
+            $this->getMergedOptions($this->options, $options)
         );
 
         return $this->request($uri, $method, $options);
@@ -434,7 +445,7 @@ class HttpClient
         return $this->client->requestAsync(
             strtoupper($method),
             $uri,
-            array_replace_recursive($this->options, $options)
+            $this->getMergedOptions($this->options, $options)
         );
     }
 
