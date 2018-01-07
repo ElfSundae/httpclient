@@ -484,7 +484,7 @@ class HttpClient
      * @param  string  &$httpMethod
      * @return bool
      */
-    protected function isMagicRequest($method, &$requestMethod, &$httpMethod)
+    protected function isMagicRequestMethod($method, &$requestMethod, &$httpMethod)
     {
         if (strlen($method) > 5 && $pos = strrpos($method, 'Async', -5)) {
             $httpMethod = substr($method, 0, $pos);
@@ -580,7 +580,7 @@ class HttpClient
      */
     public function __call($method, $parameters)
     {
-        if ($this->isMagicRequest($method, $requestMethod, $httpMethod)) {
+        if ($this->isMagicRequestMethod($method, $requestMethod, $httpMethod)) {
             return $this->$requestMethod(...$this->getRequestParameters($httpMethod, $parameters));
         }
 
