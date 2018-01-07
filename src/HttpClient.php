@@ -167,27 +167,6 @@ class HttpClient
     }
 
     /**
-     * Determine whether to catch Guzzle exceptions.
-     *
-     * @return bool
-     */
-    public function areExceptionsCaught()
-    {
-        return $this->getOption('catch_exceptions', false);
-    }
-
-    /**
-     * Set whether to catch Guzzle exceptions or not.
-     *
-     * @param  bool  $catch
-     * @return $this
-     */
-    public function catchExceptions($catch)
-    {
-        return $this->option('catch_exceptions', (bool) $catch);
-    }
-
-    /**
      * Get the request options using "dot" notation.
      *
      * @param  string|null  $key
@@ -241,6 +220,27 @@ class HttpClient
         Arr::forget($this->options, is_array($keys) ? $keys : func_get_args());
 
         return $this;
+    }
+
+    /**
+     * Determine whether to catch Guzzle exceptions.
+     *
+     * @return bool
+     */
+    public function areExceptionsCaught()
+    {
+        return $this->getOption('catch_exceptions', false);
+    }
+
+    /**
+     * Set whether to catch Guzzle exceptions or not.
+     *
+     * @param  bool  $catch
+     * @return $this
+     */
+    public function catchExceptions($catch)
+    {
+        return $this->option('catch_exceptions', (bool) $catch);
     }
 
     /**
