@@ -202,7 +202,7 @@ class HttpClient
      * @param  array  ...$options
      * @return $this
      */
-    public function mergeOptions(array ...$options)
+    public function mergeOptions(...$options)
     {
         $this->options = array_replace_recursive($this->options, ...$options);
 
