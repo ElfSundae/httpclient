@@ -566,16 +566,17 @@ class HttpClient
     }
 
     /**
-     * Get the option name for the given magic option method.
+     * Determine if the given method is a magic option method.
      *
      * @param  string  $method
-     * @return string|null
+     * @return bool
      */
-    protected function getOptionNameForMethod($method)
+    protected function isMagicOptionMethod($method, &$option)
     {
-        if (in_array($method, $this->getMagicOptionMethods())) {
-            return Str::snake($method);
-        }
+        $option = in_array($method, $this->getMagicOptionMethods())
+            ? Str::snake($method) : null;
+
+        return (bool) $option;
     }
 
     /**
@@ -599,7 +600,7 @@ class HttpClient
             return $this->getResponseData($method, $parameters);
         }
 
-        if ($option = $this->getOptionNameForMethod($method)) {
+        if ($this->isMagicOptionMethod($method, $option)) {
             if (empty($parameters)) {
                 throw new InvalidArgumentException("Method [$method] needs one argument.");
             }
