@@ -595,7 +595,7 @@ class HttpClient
             return $this->$requestMethod(...$this->getRequestParameters($httpMethod, $parameters));
         }
 
-        if ($this->isMagicResponseMethod()) {
+        if ($this->isMagicResponseMethod($method)) {
             return $this->getResponseData($method, $parameters);
         }
 
