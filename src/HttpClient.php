@@ -535,6 +535,17 @@ class HttpClient
     }
 
     /**
+     * Determine if the given method is a magic response method.
+     *
+     * @param  string  $method
+     * @return bool
+     */
+    protected function isMagicResponseMethod($method)
+    {
+        return in_array($method, $this->getMagicResponseMethods());
+    }
+
+    /**
      * Get all allowed magic option methods.
      *
      * @return array
@@ -584,7 +595,7 @@ class HttpClient
             return $this->$requestMethod(...$this->getRequestParameters($httpMethod, $parameters));
         }
 
-        if (in_array($method, $this->getMagicResponseMethods())) {
+        if ($this->isMagicResponseMethod()) {
             return $this->getResponseData($method, $parameters);
         }
 
