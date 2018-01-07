@@ -59,12 +59,10 @@ class HttpClientTest extends TestCase
     public function testSetCatchExceptions()
     {
         $client = new HttpClient;
-        $this->assertSame(true, $client->areExceptionsCaught());
-
-        $client->catchExceptions(false);
-        $this->assertSame(false, $client->areExceptionsCaught());
         $client->catchExceptions(true);
         $this->assertSame(true, $client->areExceptionsCaught());
+        $client->catchExceptions(false);
+        $this->assertSame(false, $client->areExceptionsCaught());
         $client->catchExceptions(null);
         $this->assertSame(false, $client->areExceptionsCaught());
     }
@@ -251,6 +249,7 @@ class HttpClientTest extends TestCase
             ->twice()
             ->andThrow(new TestException);
         $client->setGuzzle($guzzle);
+        $client->catchExceptions(true);
         $client->request('path1', 'post');
         $this->assertNull($client->getResponse());
 

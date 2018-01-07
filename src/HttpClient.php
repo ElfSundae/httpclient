@@ -75,9 +75,10 @@ class HttpClient
      * @var array
      */
     protected static $defaultOptions = [
+        'catch_exceptions' => true,
+        'http_errors' => false,
         'connect_timeout' => 5,
         'timeout' => 20,
-        'http_errors' => false,
     ];
 
     /**
@@ -100,13 +101,6 @@ class HttpClient
      * @var \GuzzleHttp\Psr7\Response
      */
     protected $response;
-
-    /**
-     * Indicate whether to catch Guzzle exceptions.
-     *
-     * @var bool
-     */
-    protected $catchExceptions = true;
 
     /**
      * Get the default request options.
@@ -173,13 +167,13 @@ class HttpClient
     }
 
     /**
-     * Get whether to catch Guzzle exceptions or not.
+     * Determine whether to catch Guzzle exceptions.
      *
      * @return bool
      */
     public function areExceptionsCaught()
     {
-        return $this->catchExceptions;
+        return $this->getOption('catch_exceptions', false);
     }
 
     /**
@@ -190,9 +184,7 @@ class HttpClient
      */
     public function catchExceptions($catch)
     {
-        $this->catchExceptions = (bool) $catch;
-
-        return $this;
+        return $this->option('catch_exceptions', (bool) $catch);
     }
 
     /**
@@ -386,7 +378,7 @@ class HttpClient
         try {
             $this->response = $this->client->request($method, $uri, $options);
         } catch (Exception $e) {
-            if (! $this->catchExceptions) {
+            if (! $this->areExceptionsCaught()) {
                 throw $e;
             }
         }
