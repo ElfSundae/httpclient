@@ -199,11 +199,12 @@ class HttpClient
      * Get the request options using "dot" notation.
      *
      * @param  string|null  $key
+     * @param  mixed  $default
      * @return mixed
      */
-    public function getOption($key = null)
+    public function getOption($key = null, $default = null)
     {
-        return Arr::get($this->options, $key);
+        return Arr::get($this->options, $key, $default);
     }
 
     /**
