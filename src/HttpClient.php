@@ -199,12 +199,12 @@ class HttpClient
     /**
      * Merge the given options to the request options.
      *
-     * @param  array  $options
+     * @param  array  ...$options
      * @return $this
      */
-    public function mergeOptions(array $options)
+    public function mergeOptions(array ...$options)
     {
-        $this->options = array_replace_recursive($this->options, $options);
+        $this->options = array_replace_recursive($this->options, ...$options);
 
         return $this;
     }
