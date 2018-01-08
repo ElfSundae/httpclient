@@ -9,6 +9,7 @@ All notable changes to `httpclient` will be documented in this file.
 - Dynamically handle all response methods, e.g. `getHeaders`, `getHeaderLine`
 - Dynamically handle all options setter methods, e.g. `auth`, `json`, `httpErrors`
 - `option` method can accept array
+- Added custom `catch_exceptions` option
 - Renamed `withExceptions()` to `catchExceptions()`, added `areExceptionsCaught()`
 - Renamed `options()` to `mergeOptions()`
 - Renamed `removeOptions()` to `removeOption()`
