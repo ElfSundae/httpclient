@@ -277,6 +277,21 @@ class HttpClientTest extends TestCase
         $client->request('path1', 'post');
     }
 
+    public function testResetBodyOptions()
+    {
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')
+            ->with('GET', 'path', m::subset(['body' => 'request body']))
+            ->once()
+            ->andReturn('response');
+        $client = new TestClient;
+        $client->setGuzzle($guzzle);
+        $client->option('body', 'request body');
+        $client->request('path', 'GET');
+        $this->assertSame('response', $client->getResponse());
+        $this->assertNull($client->getOption('body'));
+    }
+
     public function testRequestJson()
     {
         $client = new TestClient;
