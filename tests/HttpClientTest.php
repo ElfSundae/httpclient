@@ -56,25 +56,14 @@ class HttpClientTest extends TestCase
         $client = new HttpClient(new \stdClass);
     }
 
-    public function testSetCatchExceptions()
-    {
-        $client = new HttpClient;
-        $this->assertSame(true, $client->areExceptionsCaught());
-
-        $client->catchExceptions(false);
-        $this->assertSame(false, $client->areExceptionsCaught());
-        $client->catchExceptions(true);
-        $this->assertSame(true, $client->areExceptionsCaught());
-        $client->catchExceptions(null);
-        $this->assertSame(false, $client->areExceptionsCaught());
-    }
-
     public function testGetOption()
     {
         $client = new HttpClient(['foo' => 'bar']);
         $this->assertArraySubset($client->getClient()->getConfig(), $client->getOption());
         $this->assertArraySubset(['foo' => 'bar'], $client->getOption());
         $this->assertSame('bar', $client->getOption('foo'));
+        $this->assertNull($client->getOption('bar'));
+        $this->assertSame('Bar', $client->getOption('bar', 'Bar'));
     }
 
     public function testSetOption()
@@ -131,11 +120,41 @@ class HttpClientTest extends TestCase
         $this->assertNull($client->getOption('d'));
     }
 
+    public function testSetCatchExceptions()
+    {
+        $client = new HttpClient;
+        $client->catchExceptions(false);
+        $this->assertSame(false, $client->areExceptionsCaught());
+        $client->catchExceptions(true);
+        $this->assertSame(true, $client->areExceptionsCaught());
+        $client->catchExceptions(null);
+        $this->assertSame(false, $client->areExceptionsCaught());
+    }
+
     public function testSetHeader()
     {
         $client = new HttpClient;
         $client->header('foo', 'bar');
         $this->assertSame('bar', $client->getOption('headers.foo'));
+    }
+
+    public function testRemoveHeader()
+    {
+        $client = new HttpClient(['headers' => [
+            'A' => 'a',
+            'B' => 'b',
+            'C' => 'c',
+            'D' => 'd',
+        ]]);
+
+        $client->removeHeader('A', 'B');
+        $this->assertArrayNotHasKey('A', $client->getOption('headers'));
+        $this->assertArrayNotHasKey('B', $client->getOption('headers'));
+
+        $client->removeHeader(['C']);
+        $this->assertArrayNotHasKey('C', $client->getOption('headers'));
+
+        $this->assertArraySubset(['D' => 'd'], $client->getOption('headers'));
     }
 
     public function testSetAccept()
@@ -168,12 +187,9 @@ class HttpClientTest extends TestCase
 
     public function testSetSaveTo()
     {
-        $client = new HttpClient([
-            'save_to' => 'save_to_path',
-        ]);
-        $client->saveTo('sink_path');
-        $this->assertSame('sink_path', $client->getOption('sink'));
-        $this->assertNull($client->getOption('save_to'));
+        $client = new HttpClient;
+        $client->saveTo('path');
+        $this->assertSame('path', $client->getOption('sink'));
     }
 
     public function testGetResponse()
@@ -249,12 +265,28 @@ class HttpClientTest extends TestCase
             ->twice()
             ->andThrow(new TestException);
         $client->setGuzzle($guzzle);
+        $client->catchExceptions(true);
         $client->request('path1', 'post');
         $this->assertNull($client->getResponse());
 
         $this->expectException(TestException::class);
         $client->catchExceptions(false);
         $client->request('path1', 'post');
+    }
+
+    public function testResetBodyOptions()
+    {
+        $guzzle = m::mock(Guzzle::class);
+        $guzzle->shouldReceive('request')
+            ->with('GET', 'path', m::subset(['body' => 'request body']))
+            ->once()
+            ->andReturn('response');
+        $client = new TestClient;
+        $client->setGuzzle($guzzle);
+        $client->option('body', 'request body');
+        $client->request('path', 'GET');
+        $this->assertSame('response', $client->getResponse());
+        $this->assertNull($client->getOption('body'));
     }
 
     public function testRequestJson()
@@ -270,26 +302,6 @@ class HttpClientTest extends TestCase
         $client->requestJson('path', 'POST');
 
         $this->assertNull($client->getOption('headers.Accept'));
-
-        $client->accept('foo/bar');
-        $this->assertSame('foo/bar', $client->getOption('headers.Accept'));
-        $guzzle = m::mock(Guzzle::class);
-        $guzzle->shouldReceive('request')
-            ->with('PUT', 'path', m::subset(['headers' => ['Accept' => 'application/json,foo/bar']]))
-            ->once()
-            ->andReturn('response');
-        $client->setGuzzle($guzzle);
-        $client->requestJson('path', 'PUT');
-
-        $client->accept('application/json');
-        $this->assertSame('application/json', $client->getOption('headers.Accept'));
-        $guzzle = m::mock(Guzzle::class);
-        $guzzle->shouldReceive('request')
-            ->with('GET', 'path', m::subset(['headers' => ['Accept' => 'application/json']]))
-            ->once()
-            ->andReturn('response');
-        $client->setGuzzle($guzzle);
-        $client->requestJson('path', 'GET');
     }
 
     public function testRequestAsync()
@@ -354,25 +366,28 @@ class HttpClientTest extends TestCase
         $guzzle->shouldReceive('request')
             ->with('GET', '', m::subset(['foo' => 'bar']))
             ->once()
-            ->andReturn('response');
+            ->andReturn('response 1');
         $client->setGuzzle($guzzle);
         $client->get();
+        $this->assertSame('response 1', $client->getResponse());
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
             ->with('POST', 'path', m::subset(['foo' => 'bar']))
             ->once()
-            ->andReturn('response');
+            ->andReturn('response 2');
         $client->setGuzzle($guzzle);
         $client->post('path');
+        $this->assertSame('response 2', $client->getResponse());
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
             ->with('PUT', 'path', m::subset(['foo' => 'bar', 'a' => 'A']))
             ->once()
-            ->andReturn('response');
+            ->andReturn('response 3');
         $client->setGuzzle($guzzle);
         $client->put('path', ['a' => 'A']);
+        $this->assertSame('response 3', $client->getResponse());
     }
 
     public function testMagicResponseMethods()

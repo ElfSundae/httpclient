@@ -24,7 +24,10 @@
     "autoload": {
         "psr-4": {
             "ElfSundae\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "scripts": {
         "test": "vendor/bin/phpunit"

@@ -38,14 +38,15 @@ use Psr\Http\Message\UriInterface;
  * @method \Psr\Http\Message\StreamInterface getBody()
  * @method $this allowRedirects(bool|array $value)
  * @method $this auth(array|string|null $value)
- * @method $this body(mixed $value)
+ * @method $this body(string|resource|\Psr\Http\Message\StreamInterface $value)
  * @method $this cert(string|array $value)
  * @method $this cookies(bool|\GuzzleHttp\Cookie\CookieJarInterface $value)
  * @method $this connectTimeout(float $value)
  * @method $this debug(bool|resource $value)
- * @method $this decodeContent(bool $value)
+ * @method $this decodeContent(string|bool $value)
  * @method $this delay(int|float $value)
  * @method $this expect(bool|int $value)
+ * @method $this forceIpResolve(string $value)
  * @method $this formParams(array $value)
  * @method $this headers(array $value)
  * @method $this httpErrors(bool $value)
@@ -56,14 +57,13 @@ use Psr\Http\Message\UriInterface;
  * @method $this progress(callable $value)
  * @method $this proxy(string|array $value)
  * @method $this query(array|string $value)
+ * @method $this readTimeout(float $value)
  * @method $this sink(string|resource|\Psr\Http\Message\StreamInterface $value)
- * @method $this sslKey(array|string $value)
+ * @method $this sslKey(string|array $value)
  * @method $this stream(bool $value)
  * @method $this verify(bool|string $value)
  * @method $this timeout(float $value)
- * @method $this readTimeout(float $value)
  * @method $this version(float|string $value)
- * @method $this forceIpResolve(string $value)
  *
  * @see http://docs.guzzlephp.org/en/stable/request-options.html Request Options
  */
@@ -75,9 +75,10 @@ class HttpClient
      * @var array
      */
     protected static $defaultOptions = [
+        'catch_exceptions' => true,
+        'http_errors' => false,
         'connect_timeout' => 5,
         'timeout' => 20,
-        'http_errors' => false,
     ];
 
     /**
@@ -100,13 +101,6 @@ class HttpClient
      * @var \GuzzleHttp\Psr7\Response
      */
     protected $response;
-
-    /**
-     * Indicate whether to catch Guzzle exceptions.
-     *
-     * @var bool
-     */
-    protected $catchExceptions = true;
 
     /**
      * Get the default request options.
@@ -173,37 +167,15 @@ class HttpClient
     }
 
     /**
-     * Get whether to catch Guzzle exceptions or not.
-     *
-     * @return bool
-     */
-    public function areExceptionsCaught()
-    {
-        return $this->catchExceptions;
-    }
-
-    /**
-     * Set whether to catch Guzzle exceptions or not.
-     *
-     * @param  bool  $catch
-     * @return $this
-     */
-    public function catchExceptions($catch)
-    {
-        $this->catchExceptions = (bool) $catch;
-
-        return $this;
-    }
-
-    /**
      * Get the request options using "dot" notation.
      *
      * @param  string|null  $key
+     * @param  mixed  $default
      * @return mixed
      */
-    public function getOption($key = null)
+    public function getOption($key = null, $default = null)
     {
-        return Arr::get($this->options, $key);
+        return Arr::get($this->options, $key, $default);
     }
 
     /**
@@ -263,6 +235,22 @@ class HttpClient
     }
 
     /**
+     * Remove one or many request headers.
+     *
+     * @param  array|string  $names
+     * @return $this
+     */
+    public function removeHeader($names)
+    {
+        if (is_array($headers = $this->getOption('headers'))) {
+            $names = is_array($names) ? $names : func_get_args();
+            $this->option('headers', Arr::except($headers, $names));
+        }
+
+        return $this;
+    }
+
+    /**
      * Set the request accept type.
      *
      * @param  string  $type
@@ -314,7 +302,28 @@ class HttpClient
      */
     public function saveTo($dest)
     {
-        return $this->removeOption('save_to')->option('sink', $dest);
+        return $this->option('sink', $dest);
+    }
+
+    /**
+     * Determine whether to catch Guzzle exceptions.
+     *
+     * @return bool
+     */
+    public function areExceptionsCaught()
+    {
+        return $this->getOption('catch_exceptions', false);
+    }
+
+    /**
+     * Set whether to catch Guzzle exceptions or not.
+     *
+     * @param  bool  $catch
+     * @return $this
+     */
+    public function catchExceptions($catch)
+    {
+        return $this->option('catch_exceptions', (bool) $catch);
     }
 
     /**
@@ -368,7 +377,7 @@ class HttpClient
     }
 
     /**
-     * Make request to a URI.
+     * Send request to a URI.
      *
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
@@ -379,13 +388,12 @@ class HttpClient
     {
         $this->response = null;
 
-        $method = strtoupper($method);
-        $options = array_replace_recursive($this->options, $options);
-
         try {
-            $this->response = $this->client->request($method, $uri, $options);
+            $this->response = $this->client->request(
+                strtoupper($method), $uri, $this->getRequestOptions($options)
+            );
         } catch (Exception $e) {
-            if (! $this->catchExceptions) {
+            if (! $this->areExceptionsCaught()) {
                 throw $e;
             }
         }
@@ -394,7 +402,7 @@ class HttpClient
     }
 
     /**
-     * Make request to a URI, expecting JSON content.
+     * Send request to a URI, expecting JSON content.
      *
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
@@ -403,33 +411,13 @@ class HttpClient
      */
     public function requestJson($uri = '', $method = 'GET', array $options = [])
     {
-        $options = $this->addAcceptableJsonType(
-            array_replace_recursive($this->options, $options)
-        );
+        Arr::set($options, 'headers.Accept', 'application/json');
 
         return $this->request($uri, $method, $options);
     }
 
     /**
-     * Add JSON type to the "Accept" header for the request options.
-     *
-     * @param  array  $options
-     * @return array
-     */
-    protected function addAcceptableJsonType(array $options)
-    {
-        $accept = Arr::get($options, 'headers.Accept', '');
-
-        if (! Str::contains($accept, ['/json', '+json'])) {
-            $accept = rtrim('application/json,'.$accept, ',');
-            Arr::set($options, 'headers.Accept', $accept);
-        }
-
-        return $options;
-    }
-
-    /**
-     * Make asynchronous request to a URI.
+     * Send asynchronous request to a URI.
      *
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
@@ -439,10 +427,28 @@ class HttpClient
     public function requestAsync($uri = '', $method = 'GET', array $options = [])
     {
         return $this->client->requestAsync(
-            strtoupper($method),
-            $uri,
-            array_replace_recursive($this->options, $options)
+            strtoupper($method), $uri, $this->getRequestOptions($options)
         );
+    }
+
+    /**
+     * Get options for the Guzzle request method.
+     *
+     * @param  array  $options
+     * @return array
+     */
+    protected function getRequestOptions(array $options = [])
+    {
+        $options = array_replace_recursive($this->options, $options);
+
+        $this->removeOption([
+            'body', 'form_params', 'multipart', 'json', 'query',
+            'sink', 'save_to', 'stream',
+            'on_headers', 'on_stats', 'progress',
+            'headers.Content-Type',
+        ]);
+
+        return $options;
     }
 
     /**
@@ -491,7 +497,7 @@ class HttpClient
      * @param  string  &$httpMethod
      * @return bool
      */
-    protected function isMagicRequest($method, &$requestMethod, &$httpMethod)
+    protected function isMagicRequestMethod($method, &$requestMethod, &$httpMethod)
     {
         if (strlen($method) > 5 && $pos = strrpos($method, 'Async', -5)) {
             $httpMethod = substr($method, 0, $pos);
@@ -501,17 +507,15 @@ class HttpClient
             $requestMethod = 'request';
         }
 
-        if (in_array($httpMethod, $this->getMagicRequestMethods())) {
-            return true;
+        if (! in_array($httpMethod, $this->getMagicRequestMethods())) {
+            $httpMethod = $requestMethod = null;
         }
 
-        $httpMethod = $requestMethod = null;
-
-        return false;
+        return (bool) $httpMethod;
     }
 
     /**
-     * Get parameters for $this->request() from the magic request call.
+     * Get parameters for the request() method from the magic request call.
      *
      * @param  string  $method
      * @param  array  $parameters
@@ -542,6 +546,17 @@ class HttpClient
     }
 
     /**
+     * Determine if the given method is a magic response method.
+     *
+     * @param  string  $method
+     * @return bool
+     */
+    protected function isMagicResponseMethod($method)
+    {
+        return in_array($method, $this->getMagicResponseMethods());
+    }
+
+    /**
      * Get all allowed magic option methods.
      *
      * @return array
@@ -562,16 +577,17 @@ class HttpClient
     }
 
     /**
-     * Get the option name for the given magic option method.
+     * Determine if the given method is a magic option method.
      *
      * @param  string  $method
-     * @return string|null
+     * @return bool
      */
-    protected function getOptionNameForMethod($method)
+    protected function isMagicOptionMethod($method, &$option)
     {
-        if (in_array($method, $this->getMagicOptionMethods())) {
-            return Str::snake($method);
-        }
+        $option = in_array($method, $this->getMagicOptionMethods())
+            ? Str::snake($method) : null;
+
+        return (bool) $option;
     }
 
     /**
@@ -587,15 +603,15 @@ class HttpClient
      */
     public function __call($method, $parameters)
     {
-        if ($this->isMagicRequest($method, $requestMethod, $httpMethod)) {
+        if ($this->isMagicRequestMethod($method, $requestMethod, $httpMethod)) {
             return $this->$requestMethod(...$this->getRequestParameters($httpMethod, $parameters));
         }
 
-        if (in_array($method, $this->getMagicResponseMethods())) {
+        if ($this->isMagicResponseMethod($method)) {
             return $this->getResponseData($method, $parameters);
         }
 
-        if ($option = $this->getOptionNameForMethod($method)) {
+        if ($this->isMagicOptionMethod($method, $option)) {
             if (empty($parameters)) {
                 throw new InvalidArgumentException("Method [$method] needs one argument.");
             }
