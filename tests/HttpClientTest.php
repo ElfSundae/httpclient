@@ -187,12 +187,9 @@ class HttpClientTest extends TestCase
 
     public function testSetSaveTo()
     {
-        $client = new HttpClient([
-            'save_to' => 'save_to_path',
-        ]);
-        $client->saveTo('sink_path');
-        $this->assertSame('sink_path', $client->getOption('sink'));
-        $this->assertNull($client->getOption('save_to'));
+        $client = new HttpClient;
+        $client->saveTo('path');
+        $this->assertSame('path', $client->getOption('sink'));
     }
 
     public function testGetResponse()
