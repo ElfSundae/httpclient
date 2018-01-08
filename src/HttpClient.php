@@ -157,6 +157,17 @@ class HttpClient
     }
 
     /**
+     * Get merged given request options.
+     *
+     * @param  array  ...$options
+     * @return array
+     */
+    protected function getMergedOptions(...$options)
+    {
+        return array_replace_recursive(...$options);
+    }
+
+    /**
      * Get the Guzzle client instance.
      *
      * @return \GuzzleHttp\Client
@@ -207,17 +218,6 @@ class HttpClient
         $this->options = $this->getMergedOptions($this->options, $options);
 
         return $this;
-    }
-
-    /**
-     * Get merged given request options.
-     *
-     * @param  array  ...$options
-     * @return array
-     */
-    protected function getMergedOptions(...$options)
-    {
-        return array_replace_recursive(...$options);
     }
 
     /**
