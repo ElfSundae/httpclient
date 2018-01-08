@@ -402,26 +402,6 @@ class HttpClient
     }
 
     /**
-     * Get options for the Guzzle request method.
-     *
-     * @param  array  $options
-     * @return array
-     */
-    protected function getRequestOptions(array $options = [])
-    {
-        $options = array_replace_recursive($this->options, $options);
-
-        $this->removeOption([
-            'body', 'form_params', 'multipart', 'json', 'query',
-            'sink', 'save_to', 'stream',
-            'on_headers', 'on_stats', 'progress',
-            'headers.Content-Type',
-        ]);
-
-        return $options;
-    }
-
-    /**
      * Send request to a URI, expecting JSON content.
      *
      * @param  string|\Psr\Http\Message\UriInterface  $uri
@@ -449,6 +429,26 @@ class HttpClient
         return $this->client->requestAsync(
             strtoupper($method), $uri, $this->getRequestOptions($options)
         );
+    }
+
+    /**
+     * Get options for the Guzzle request method.
+     *
+     * @param  array  $options
+     * @return array
+     */
+    protected function getRequestOptions(array $options = [])
+    {
+        $options = array_replace_recursive($this->options, $options);
+
+        $this->removeOption([
+            'body', 'form_params', 'multipart', 'json', 'query',
+            'sink', 'save_to', 'stream',
+            'on_headers', 'on_stats', 'progress',
+            'headers.Content-Type',
+        ]);
+
+        return $options;
     }
 
     /**
