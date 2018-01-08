@@ -276,8 +276,7 @@ class HttpClient
     {
         if (is_array($headers = $this->getOption('headers'))) {
             $names = is_array($names) ? $names : func_get_args();
-            $headers = Arr::except($headers, $names);
-            $this->option('headers', $headers);
+            $this->option('headers', Arr::except($headers, $names));
         }
 
         return $this;
