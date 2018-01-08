@@ -150,21 +150,10 @@ class HttpClient
         }
 
         $this->client = new Client(
-            $this->getMergedOptions(static::defaultOptions(), $options)
+            array_replace_recursive(static::defaultOptions(), $options)
         );
 
         $this->options = $this->client->getConfig();
-    }
-
-    /**
-     * Get merged given request options.
-     *
-     * @param  array  ...$options
-     * @return array
-     */
-    protected function getMergedOptions(...$options)
-    {
-        return array_replace_recursive(...$options);
     }
 
     /**
@@ -215,7 +204,7 @@ class HttpClient
      */
     public function mergeOptions(array $options)
     {
-        $this->options = $this->getMergedOptions($this->options, $options);
+        $this->options = array_replace_recursive($this->options, $options);
 
         return $this;
     }
@@ -245,27 +234,6 @@ class HttpClient
             'body', 'form_params', 'multipart', 'json', 'query',
             'headers.Content-Type',
         ]);
-    }
-
-    /**
-     * Determine whether to catch Guzzle exceptions.
-     *
-     * @return bool
-     */
-    public function areExceptionsCaught()
-    {
-        return $this->getOption('catch_exceptions', false);
-    }
-
-    /**
-     * Set whether to catch Guzzle exceptions or not.
-     *
-     * @param  bool  $catch
-     * @return $this
-     */
-    public function catchExceptions($catch)
-    {
-        return $this->option('catch_exceptions', (bool) $catch);
     }
 
     /**
@@ -352,6 +320,27 @@ class HttpClient
     }
 
     /**
+     * Determine whether to catch Guzzle exceptions.
+     *
+     * @return bool
+     */
+    public function areExceptionsCaught()
+    {
+        return $this->getOption('catch_exceptions', false);
+    }
+
+    /**
+     * Set whether to catch Guzzle exceptions or not.
+     *
+     * @param  bool  $catch
+     * @return $this
+     */
+    public function catchExceptions($catch)
+    {
+        return $this->option('catch_exceptions', (bool) $catch);
+    }
+
+    /**
      * Get the Guzzle response instance.
      *
      * @return \GuzzleHttp\Psr7\Response|null
@@ -402,7 +391,7 @@ class HttpClient
     }
 
     /**
-     * Make request to a URI.
+     * Send request to a URI.
      *
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
@@ -434,7 +423,7 @@ class HttpClient
      */
     protected function getRequestOptions(array $options = [])
     {
-        $options = $this->getMergedOptions($this->options, $options);
+        $options = array_replace_recursive($this->options, $options);
 
         $this->removeBodyOptions();
 
@@ -442,7 +431,7 @@ class HttpClient
     }
 
     /**
-     * Make request to a URI, expecting JSON content.
+     * Send request to a URI, expecting JSON content.
      *
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
@@ -457,7 +446,7 @@ class HttpClient
     }
 
     /**
-     * Make asynchronous request to a URI.
+     * Send asynchronous request to a URI.
      *
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
@@ -527,17 +516,15 @@ class HttpClient
             $requestMethod = 'request';
         }
 
-        if (in_array($httpMethod, $this->getMagicRequestMethods())) {
-            return true;
+        if (! in_array($httpMethod, $this->getMagicRequestMethods())) {
+            $httpMethod = $requestMethod = null;
         }
 
-        $httpMethod = $requestMethod = null;
-
-        return false;
+        return (bool) $httpMethod;
     }
 
     /**
-     * Get parameters for $this->request() from the magic request call.
+     * Get parameters for the request() method from the magic request call.
      *
      * @param  string  $method
      * @param  array  $parameters
