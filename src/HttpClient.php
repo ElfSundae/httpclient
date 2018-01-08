@@ -274,12 +274,13 @@ class HttpClient
      */
     public function removeHeader($names)
     {
-        $names = is_array($names) ? $names : func_get_args();
+        if (is_array($headers = $this->getOption('headers'))) {
+            $names = is_array($names) ? $names : func_get_args();
+            $headers = Arr::except($headers, $names);
+            $this->option('headers', $headers);
+        }
 
-        return $this->option(
-            'headers',
-            Arr::except($this->getOption('headers', []), $names)
-        );
+        return $this;
     }
 
     /**
