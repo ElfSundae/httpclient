@@ -267,6 +267,22 @@ class HttpClient
     }
 
     /**
+     * Remove one or many request headers.
+     *
+     * @param  array|string  $names
+     * @return $this
+     */
+    public function removeHeader($names)
+    {
+        $names = is_array($names) ? $names : func_get_args();
+
+        return $this->option(
+            'headers',
+            Arr::except($this->getOption('headers', []), $names)
+        );
+    }
+
+    /**
      * Set the request accept type.
      *
      * @param  string  $type

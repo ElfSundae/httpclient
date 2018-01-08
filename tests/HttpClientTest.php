@@ -138,6 +138,25 @@ class HttpClientTest extends TestCase
         $this->assertSame('bar', $client->getOption('headers.foo'));
     }
 
+    public function testRemoveHeader()
+    {
+        $client = new HttpClient(['headers' => [
+            'A' => 'a',
+            'B' => 'b',
+            'C' => 'c',
+            'D' => 'd',
+        ]]);
+
+        $client->removeHeader('A', 'B');
+        $this->assertArrayNotHasKey('A', $client->getOption('headers'));
+        $this->assertArrayNotHasKey('B', $client->getOption('headers'));
+
+        $client->removeHeader(['C']);
+        $this->assertArrayNotHasKey('C', $client->getOption('headers'));
+
+        $this->assertArraySubset(['D' => 'd'], $client->getOption('headers'));
+    }
+
     public function testSetAccept()
     {
         $client = new HttpClient;
