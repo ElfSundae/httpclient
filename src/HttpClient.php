@@ -234,6 +234,20 @@ class HttpClient
     }
 
     /**
+     * Remove options which related to the request body, e.g. "body",
+     * "form_params", "json".
+     *
+     * @return $this
+     */
+    public function removeBodyOptions()
+    {
+        return $this->removeOption([
+            'body', 'form_params', 'multipart', 'json', 'query',
+            'headers.Content-Type',
+        ]);
+    }
+
+    /**
      * Determine whether to catch Guzzle exceptions.
      *
      * @return bool
@@ -399,11 +413,10 @@ class HttpClient
     {
         $this->response = null;
 
-        $method = strtoupper($method);
-        $options = $this->getMergedOptions($this->options, $options);
-
         try {
-            $this->response = $this->client->request($method, $uri, $options);
+            $this->response = $this->client->request(
+                strtoupper($method), $uri, $this->getRequestOptions($options)
+            );
         } catch (Exception $e) {
             if (! $this->areExceptionsCaught()) {
                 throw $e;
@@ -411,6 +424,21 @@ class HttpClient
         }
 
         return $this;
+    }
+
+    /**
+     * Get options for the Guzzle request method.
+     *
+     * @param  array  $options
+     * @return array
+     */
+    protected function getRequestOptions(array $options = [])
+    {
+        $options = $this->getMergedOptions($this->options, $options);
+
+        $this->removeBodyOptions();
+
+        return $options;
     }
 
     /**
@@ -439,9 +467,7 @@ class HttpClient
     public function requestAsync($uri = '', $method = 'GET', array $options = [])
     {
         return $this->client->requestAsync(
-            strtoupper($method),
-            $uri,
-            $this->getMergedOptions($this->options, $options)
+            strtoupper($method), $uri, $this->getRequestOptions($options)
         );
     }
 
