@@ -223,20 +223,6 @@ class HttpClient
     }
 
     /**
-     * Remove options which related to the request body, e.g. "body",
-     * "form_params", "json".
-     *
-     * @return $this
-     */
-    public function removeBodyOptions()
-    {
-        return $this->removeOption([
-            'body', 'form_params', 'multipart', 'json', 'query',
-            'headers.Content-Type',
-        ]);
-    }
-
-    /**
      * Set a request header.
      *
      * @param  string  $name
@@ -425,7 +411,12 @@ class HttpClient
     {
         $options = array_replace_recursive($this->options, $options);
 
-        $this->removeBodyOptions();
+        $this->removeOption([
+            'body', 'form_params', 'multipart', 'json', 'query',
+            'sink', 'save_to', 'stream',
+            'on_headers', 'on_stats', 'progress',
+            'headers.Content-Type',
+        ]);
 
         return $options;
     }
