@@ -120,17 +120,6 @@ class HttpClientTest extends TestCase
         $this->assertNull($client->getOption('d'));
     }
 
-    public function testSetCatchExceptions()
-    {
-        $client = new HttpClient;
-        $client->catchExceptions(false);
-        $this->assertSame(false, $client->areExceptionsCaught());
-        $client->catchExceptions(true);
-        $this->assertSame(true, $client->areExceptionsCaught());
-        $client->catchExceptions(null);
-        $this->assertSame(false, $client->areExceptionsCaught());
-    }
-
     public function testSetHeader()
     {
         $client = new HttpClient;
@@ -190,6 +179,17 @@ class HttpClientTest extends TestCase
         $client = new HttpClient;
         $client->saveTo('path');
         $this->assertSame('path', $client->getOption('sink'));
+    }
+
+    public function testSetCatchExceptions()
+    {
+        $client = new HttpClient;
+        $client->catchExceptions(false);
+        $this->assertSame(false, $client->areExceptionsCaught());
+        $client->catchExceptions(true);
+        $this->assertSame(true, $client->areExceptionsCaught());
+        $client->catchExceptions(null);
+        $this->assertSame(false, $client->areExceptionsCaught());
     }
 
     public function testGetResponse()
