@@ -407,16 +407,21 @@ class HttpClientTest extends TestCase
     {
         $client = new HttpClient;
 
-        // Test all options to ensure we did not define the same name method
-        // in HttpClient
-        foreach ((new TestClient)->_getMagicOptionMethods() as $method) {
-            $client->$method('foo');
-            $this->assertSame('foo', $client->getOption(snake_case($method)));
-        }
+        $client->debug(true);
+        $this->assertTrue($client->getOption('debug'));
+
+        $client->decodeContent(false);
+        $this->assertFalse($client->getOption('decode_content'));
+
+        $client->json(['foo' => 'bar']);
+        $this->assertEquals(['foo' => 'bar'], $client->getOption('json'));
+
+        $client->formParams(['foo' => 'bar']);
+        $this->assertEquals(['foo' => 'bar'], $client->getOption('form_params'));
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Method [body] needs one argument.');
-        $client->body();
+        $this->expectExceptionMessage('Method [readTimeout] needs one argument.');
+        $client->readTimeout();
     }
 
     public function testBadMethodCall()
