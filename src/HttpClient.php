@@ -306,6 +306,31 @@ class HttpClient
     }
 
     /**
+     * Set the body of the request to a multipart/form-data form.
+     *
+     * @param  array  $data
+     * @return $this
+     */
+    public function multipart(array $data)
+    {
+        $multipart = [];
+
+        foreach ($data as $key => $value) {
+            if (! is_array($value)) {
+                $value = ['contents' => $value];
+            }
+
+            if (! is_int($key)) {
+                $value['name'] = $key;
+            }
+
+            $multipart[] = $value;
+        }
+
+        return $this->option('multipart', $multipart);
+    }
+
+    /**
      * Determine whether to catch Guzzle exceptions.
      *
      * @return bool

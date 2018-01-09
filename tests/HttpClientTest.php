@@ -181,6 +181,37 @@ class HttpClientTest extends TestCase
         $this->assertSame('path', $client->getOption('sink'));
     }
 
+    public function testSetMultipart()
+    {
+        $client = new HttpClient;
+        $client->multipart([
+            'a' => 'A',
+            'b' => [
+                'filename' => 'foo.txt',
+            ],
+            [
+                'name' => 'c',
+            ],
+            'd',
+        ]);
+        $this->assertEquals([
+            [
+                'name' => 'a',
+                'contents' => 'A',
+            ],
+            [
+                'name' => 'b',
+                'filename' => 'foo.txt',
+            ],
+            [
+                'name' => 'c',
+            ],
+            [
+                'contents' => 'd',
+            ],
+        ], $client->getOption('multipart'));
+    }
+
     public function testSetCatchExceptions()
     {
         $client = new HttpClient;
