@@ -51,7 +51,6 @@ use Psr\Http\Message\UriInterface;
  * @method $this headers(array $value)
  * @method $this httpErrors(bool $value)
  * @method $this json(mixed $value)
- * @method $this multipart(array $value)
  * @method $this onHeaders(callable $value)
  * @method $this onStats(callable $value)
  * @method $this progress(callable $value)
