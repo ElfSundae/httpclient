@@ -416,15 +416,13 @@ class HttpClient
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
-     * @return string
+     * @return string|null
      */
     public function fetchContent($uri = '', $method = 'GET', array $options = [])
     {
         if ($response = $this->request($uri, $method, $options)) {
             return (string) $response->getBody();
         }
-
-        return '';
     }
 
     /**
@@ -433,7 +431,7 @@ class HttpClient
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
-     * @return mixed
+     * @return mixed|null
      */
     public function fetchJson($uri = '', $method = 'GET', array $options = [])
     {
