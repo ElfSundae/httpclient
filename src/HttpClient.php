@@ -227,6 +227,7 @@ class HttpClient
     {
         if (is_array($headers = $this->getOption('headers'))) {
             $names = is_array($names) ? $names : func_get_args();
+
             $this->option('headers', Arr::except($headers, $names));
         }
 
@@ -348,7 +349,7 @@ class HttpClient
 
         try {
             $response = $this->client->request(
-                strtoupper($method), $uri, $this->getRequestOptions($options)
+                $method, $uri, $this->getRequestOptions($options)
             );
         } catch (Exception $e) {
             if (! $this->areExceptionsCaught()) {
@@ -385,7 +386,7 @@ class HttpClient
     public function requestAsync($uri = '', $method = 'GET', array $options = [])
     {
         return $this->client->requestAsync(
-            strtoupper($method), $uri, $this->getRequestOptions($options)
+            $method, $uri, $this->getRequestOptions($options)
         );
     }
 

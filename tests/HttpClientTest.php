@@ -233,7 +233,7 @@ class HttpClientTest extends TestCase
             ->once()
             ->andReturn($response = new Response);
         $client->setGuzzle($guzzle);
-        $this->assertSame($response, $client->request('path', 'get', ['b' => 'B']));
+        $this->assertSame($response, $client->request('path', 'GET', ['b' => 'B']));
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
@@ -242,11 +242,11 @@ class HttpClientTest extends TestCase
             ->andThrow(new TestException);
         $client->setGuzzle($guzzle);
         $client->catchExceptions(true);
-        $this->assertNull($client->request('path1', 'post'));
+        $this->assertNull($client->request('path1', 'POST'));
 
         $this->expectException(TestException::class);
         $client->catchExceptions(false);
-        $client->request('path1', 'post');
+        $client->request('path1', 'POST');
     }
 
     public function testResetBodyOptions()
@@ -285,7 +285,7 @@ class HttpClientTest extends TestCase
             ->once()
             ->andReturn('promise');
         $client->setGuzzle($guzzle);
-        $this->assertSame('promise', $client->requestAsync('path', 'post', ['b' => 'B']));
+        $this->assertSame('promise', $client->requestAsync('path', 'POST', ['b' => 'B']));
     }
 
     public function testFetchContent()
@@ -311,7 +311,7 @@ class HttpClientTest extends TestCase
         foreach (['get', 'head', 'put', 'post', 'patch', 'delete', 'options'] as $method) {
             $guzzle = m::mock(Guzzle::class);
             $guzzle->shouldReceive('request')
-                ->with(strtoupper($method), 'path', m::subset(['foo' => $method]))
+                ->with($method, 'path', m::subset(['foo' => $method]))
                 ->once()
                 ->andReturn($response = new Response);
             $client->setGuzzle($guzzle);
@@ -319,7 +319,7 @@ class HttpClientTest extends TestCase
 
             $guzzle = m::mock(Guzzle::class);
             $guzzle->shouldReceive('requestAsync')
-                ->with(strtoupper($method), 'path', m::subset(['foo' => $method]))
+                ->with($method, 'path', m::subset(['foo' => $method]))
                 ->once()
                 ->andReturn($method);
             $client->setGuzzle($guzzle);
@@ -334,7 +334,7 @@ class HttpClientTest extends TestCase
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
-            ->with('GET', '', m::subset(['foo' => 'bar']))
+            ->with('get', '', m::subset(['foo' => 'bar']))
             ->once()
             ->andReturn($response = new Response);
         $client->setGuzzle($guzzle);
@@ -342,7 +342,7 @@ class HttpClientTest extends TestCase
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
-            ->with('POST', 'path', m::subset(['foo' => 'bar']))
+            ->with('post', 'path', m::subset(['foo' => 'bar']))
             ->once()
             ->andReturn($response = new Response);
         $client->setGuzzle($guzzle);
@@ -350,7 +350,7 @@ class HttpClientTest extends TestCase
 
         $guzzle = m::mock(Guzzle::class);
         $guzzle->shouldReceive('request')
-            ->with('PUT', 'path', m::subset(['foo' => 'bar', 'a' => 'A']))
+            ->with('put', 'path', m::subset(['foo' => 'bar', 'a' => 'A']))
             ->once()
             ->andReturn($response = new Response);
         $client->setGuzzle($guzzle);
