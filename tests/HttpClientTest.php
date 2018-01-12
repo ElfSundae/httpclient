@@ -290,10 +290,21 @@ class HttpClientTest extends TestCase
 
     public function testFetchContent()
     {
-        $response = new Response(200, [], 'foobar');
-        $handler = MockHandler::createWithMiddleware([$response]);
+        $handler = MockHandler::createWithMiddleware([
+            new Response(200, [], 'foobar'),
+            new TestException,
+            new TestException,
+        ]);
         $client = new HttpClient(compact('handler'));
+
         $this->assertSame('foobar', $client->fetchContent());
+
+        $client->catchExceptions(true);
+        $this->assertNull($client->fetchContent());
+
+        $client->catchExceptions(false);
+        $this->expectException(TestException::class);
+        $client->fetchContent();
     }
 
     public function testFetchJson()
