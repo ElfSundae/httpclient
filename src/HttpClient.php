@@ -345,10 +345,8 @@ class HttpClient
      */
     public function request($uri = '', $method = 'GET', array $options = [])
     {
-        $response = null;
-
         try {
-            $response = $this->client->request(
+            return $this->client->request(
                 $method, $uri, $this->getRequestOptions($options)
             );
         } catch (Exception $e) {
@@ -356,8 +354,6 @@ class HttpClient
                 throw $e;
             }
         }
-
-        return $response;
     }
 
     /**
