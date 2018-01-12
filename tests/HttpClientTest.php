@@ -59,7 +59,7 @@ class HttpClientTest extends TestCase
     public function testGetOption()
     {
         $client = new HttpClient(['foo' => 'bar']);
-        $this->assertArraySubset($client->getClient()->getConfig(), $client->getOption());
+        $this->assertEquals($client->getClient()->getConfig(), $client->getOption());
         $this->assertArraySubset(['foo' => 'bar'], $client->getOption());
         $this->assertSame('bar', $client->getOption('foo'));
         $this->assertNull($client->getOption('bar'));
