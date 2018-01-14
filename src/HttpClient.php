@@ -20,6 +20,11 @@ use Psr\Http\Message\UriInterface;
  * @method \Psr\Http\Message\ResponseInterface|null patch(string|UriInterface $uri = '', array $options = [])
  * @method \Psr\Http\Message\ResponseInterface|null delete(string|UriInterface $uri = '', array $options = [])
  * @method \Psr\Http\Message\ResponseInterface|null options(string|UriInterface $uri = '', array $options = [])
+ * @method mixed getJson(string|UriInterface $uri = '', array $options = [])
+ * @method mixed postJson(string|UriInterface $uri = '', array $options = [])
+ * @method mixed putJson(string|UriInterface $uri = '', array $options = [])
+ * @method mixed patchJson(string|UriInterface $uri = '', array $options = [])
+ * @method mixed deleteJson(string|UriInterface $uri = '', array $options = [])
  * @method \GuzzleHttp\Promise\PromiseInterface getAsync(string|UriInterface $uri = '', array $options = [])
  * @method \GuzzleHttp\Promise\PromiseInterface headAsync(string|UriInterface $uri = '', array $options = [])
  * @method \GuzzleHttp\Promise\PromiseInterface postAsync(string|UriInterface $uri = '', array $options = [])
@@ -84,6 +89,15 @@ class HttpClient
      * @var array
      */
     protected $options = [];
+
+    /**
+     * All allowed magic request methods (verbs).
+     *
+     * @var array
+     */
+    protected $magicRequestMethods = [
+        'get', 'head', 'post', 'put', 'patch', 'delete', 'options',
+    ];
 
     /**
      * Get the default request options.
@@ -427,25 +441,13 @@ class HttpClient
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
-     * @return mixed|null
+     * @return mixed
      */
     public function fetchJson($uri = '', $method = 'GET', array $options = [])
     {
         if ($response = $this->requestJson($uri, $method, $options)) {
             return json_decode($response->getBody(), true);
         }
-    }
-
-    /**
-     * Get all allowed magic request methods.
-     *
-     * @return array
-     */
-    protected function getMagicRequestMethods()
-    {
-        return [
-            'get', 'head', 'post', 'put', 'patch', 'delete', 'options',
-        ];
     }
 
     /**
@@ -458,19 +460,23 @@ class HttpClient
      */
     protected function isMagicRequestMethod($method, &$requestMethod, &$httpMethod)
     {
-        if (strlen($method) > 5 && $pos = strrpos($method, 'Async', -5)) {
-            $httpMethod = substr($method, 0, $pos);
-            $requestMethod = 'requestAsync';
-        } else {
-            $httpMethod = $method;
-            $requestMethod = 'request';
+        $requestMethod = $httpMethod = null;
+
+        foreach ($this->magicRequestMethods as $verb) {
+            if ($method == $verb) {
+                $requestMethod = 'request';
+            } elseif ($method == $verb.'Async') {
+                $requestMethod = 'requestAsync';
+            } elseif ($method == $verb.'Json') {
+                $requestMethod = 'fetchJson';
+            }
+
+            if ($requestMethod) {
+                return (bool) $httpMethod = $verb;
+            }
         }
 
-        if (! in_array($httpMethod, $this->getMagicRequestMethods())) {
-            $httpMethod = $requestMethod = null;
-        }
-
-        return (bool) $httpMethod;
+        return false;
     }
 
     /**

@@ -329,15 +329,18 @@ class HttpClientTest extends TestCase
     public function testMagicRequestMethods()
     {
         $client = new TestClient;
+        $jsonResponse = new Response(200, [], json_encode(['data' => 'msg']));
 
         foreach (['get', 'head', 'put', 'post', 'patch', 'delete', 'options'] as $method) {
             $guzzle = m::mock(Guzzle::class);
             $guzzle->shouldReceive('request')
                 ->with($method, 'path', m::subset(['foo' => $method]))
-                ->once()
-                ->andReturn($response = new Response);
+                ->twice()
+                ->andReturn($jsonResponse);
             $client->setGuzzle($guzzle);
-            $this->assertSame($response, $client->$method('path', ['foo' => $method]));
+            $this->assertSame($jsonResponse, $client->$method('path', ['foo' => $method]));
+
+            $this->assertEquals(['data' => 'msg'], $client->{$method.'Json'}('path', ['foo' => $method]));
 
             $guzzle = m::mock(Guzzle::class);
             $guzzle->shouldReceive('requestAsync')
