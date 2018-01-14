@@ -2,7 +2,6 @@
 
 namespace ElfSundae;
 
-use Closure;
 use Exception;
 use ReflectionClass;
 use GuzzleHttp\Client;
@@ -14,13 +13,18 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 
 /**
- * @method $this get(string|UriInterface $uri = '', array $options = [])
- * @method $this head(string|UriInterface $uri = '', array $options = [])
- * @method $this post(string|UriInterface $uri = '', array $options = [])
- * @method $this put(string|UriInterface $uri = '', array $options = [])
- * @method $this patch(string|UriInterface $uri = '', array $options = [])
- * @method $this delete(string|UriInterface $uri = '', array $options = [])
- * @method $this options(string|UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null get(string|UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null head(string|UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null post(string|UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null put(string|UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null patch(string|UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null delete(string|UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null options(string|UriInterface $uri = '', array $options = [])
+ * @method mixed getJson(string|UriInterface $uri = '', array $options = [])
+ * @method mixed postJson(string|UriInterface $uri = '', array $options = [])
+ * @method mixed putJson(string|UriInterface $uri = '', array $options = [])
+ * @method mixed patchJson(string|UriInterface $uri = '', array $options = [])
+ * @method mixed deleteJson(string|UriInterface $uri = '', array $options = [])
  * @method \GuzzleHttp\Promise\PromiseInterface getAsync(string|UriInterface $uri = '', array $options = [])
  * @method \GuzzleHttp\Promise\PromiseInterface headAsync(string|UriInterface $uri = '', array $options = [])
  * @method \GuzzleHttp\Promise\PromiseInterface postAsync(string|UriInterface $uri = '', array $options = [])
@@ -28,14 +32,6 @@ use Psr\Http\Message\UriInterface;
  * @method \GuzzleHttp\Promise\PromiseInterface patchAsync(string|UriInterface $uri = '', array $options = [])
  * @method \GuzzleHttp\Promise\PromiseInterface deleteAsync(string|UriInterface $uri = '', array $options = [])
  * @method \GuzzleHttp\Promise\PromiseInterface optionsAsync(string|UriInterface $uri = '', array $options = [])
- * @method int getStatusCode()
- * @method string getReasonPhrase()
- * @method string getProtocolVersion()
- * @method array getHeaders()
- * @method bool hasHeader(string $header)
- * @method array getHeader(string $header)
- * @method string getHeaderLine(string $header)
- * @method \Psr\Http\Message\StreamInterface getBody()
  * @method $this allowRedirects(bool|array $value)
  * @method $this auth(array|string|null $value)
  * @method $this body(string|resource|\Psr\Http\Message\StreamInterface $value)
@@ -51,7 +47,6 @@ use Psr\Http\Message\UriInterface;
  * @method $this headers(array $value)
  * @method $this httpErrors(bool $value)
  * @method $this json(mixed $value)
- * @method $this multipart(array $value)
  * @method $this onHeaders(callable $value)
  * @method $this onStats(callable $value)
  * @method $this progress(callable $value)
@@ -96,11 +91,13 @@ class HttpClient
     protected $options = [];
 
     /**
-     * The Guzzle response.
+     * All allowed magic request methods (verbs).
      *
-     * @var \GuzzleHttp\Psr7\Response
+     * @var array
      */
-    protected $response;
+    protected $magicRequestMethods = [
+        'get', 'head', 'post', 'put', 'patch', 'delete', 'options',
+    ];
 
     /**
      * Get the default request options.
@@ -244,6 +241,7 @@ class HttpClient
     {
         if (is_array($headers = $this->getOption('headers'))) {
             $names = is_array($names) ? $names : func_get_args();
+
             $this->option('headers', Arr::except($headers, $names));
         }
 
@@ -306,6 +304,31 @@ class HttpClient
     }
 
     /**
+     * Set the body of the request to a multipart/form-data form.
+     *
+     * @param  array  $data
+     * @return $this
+     */
+    public function multipart(array $data)
+    {
+        $multipart = [];
+
+        foreach ($data as $key => $value) {
+            if (! is_array($value)) {
+                $value = ['contents' => $value];
+            }
+
+            if (! is_int($key)) {
+                $value['name'] = $key;
+            }
+
+            $multipart[] = $value;
+        }
+
+        return $this->option('multipart', $multipart);
+    }
+
+    /**
      * Determine whether to catch Guzzle exceptions.
      *
      * @return bool
@@ -327,78 +350,24 @@ class HttpClient
     }
 
     /**
-     * Get the Guzzle response instance.
-     *
-     * @return \GuzzleHttp\Psr7\Response|null
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * Get data from the response.
-     *
-     * @param  string|\Closure  $callback
-     * @param  mixed  $parameters
-     * @param  mixed  $default
-     * @return mixed
-     */
-    public function getResponseData($callback, $parameters = [], $default = null)
-    {
-        if ($this->response) {
-            return $callback instanceof Closure
-                ? $callback($this->response, ...(array) $parameters)
-                : $this->response->$callback(...(array) $parameters);
-        }
-
-        return $default;
-    }
-
-    /**
-     * Get the response content.
-     *
-     * @return string
-     */
-    public function getContent()
-    {
-        return (string) $this->getBody();
-    }
-
-    /**
-     * Get the JSON-decoded response content.
-     *
-     * @param  bool  $assoc
-     * @return mixed
-     */
-    public function getJson($assoc = true)
-    {
-        return json_decode($this->getContent(), $assoc);
-    }
-
-    /**
      * Send request to a URI.
      *
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
-     * @return $this
+     * @return \Psr\Http\Message\ResponseInterface|null
      */
     public function request($uri = '', $method = 'GET', array $options = [])
     {
-        $this->response = null;
-
         try {
-            $this->response = $this->client->request(
-                strtoupper($method), $uri, $this->getRequestOptions($options)
+            return $this->client->request(
+                $method, $uri, $this->getRequestOptions($options)
             );
         } catch (Exception $e) {
             if (! $this->areExceptionsCaught()) {
                 throw $e;
             }
         }
-
-        return $this;
     }
 
     /**
@@ -407,7 +376,7 @@ class HttpClient
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
-     * @return $this
+     * @return \Psr\Http\Message\ResponseInterface|null
      */
     public function requestJson($uri = '', $method = 'GET', array $options = [])
     {
@@ -427,7 +396,7 @@ class HttpClient
     public function requestAsync($uri = '', $method = 'GET', array $options = [])
     {
         return $this->client->requestAsync(
-            strtoupper($method), $uri, $this->getRequestOptions($options)
+            $method, $uri, $this->getRequestOptions($options)
         );
     }
 
@@ -457,11 +426,13 @@ class HttpClient
      * @param  string|\Psr\Http\Message\UriInterface  $uri
      * @param  string  $method
      * @param  array  $options
-     * @return string
+     * @return string|null
      */
     public function fetchContent($uri = '', $method = 'GET', array $options = [])
     {
-        return $this->request($uri, $method, $options)->getContent();
+        if ($response = $this->request($uri, $method, $options)) {
+            return (string) $response->getBody();
+        }
     }
 
     /**
@@ -474,19 +445,9 @@ class HttpClient
      */
     public function fetchJson($uri = '', $method = 'GET', array $options = [])
     {
-        return $this->requestJson($uri, $method, $options)->getJson();
-    }
-
-    /**
-     * Get all allowed magic request methods.
-     *
-     * @return array
-     */
-    protected function getMagicRequestMethods()
-    {
-        return [
-            'get', 'head', 'post', 'put', 'patch', 'delete', 'options',
-        ];
+        if ($response = $this->requestJson($uri, $method, $options)) {
+            return json_decode($response->getBody(), true);
+        }
     }
 
     /**
@@ -499,19 +460,23 @@ class HttpClient
      */
     protected function isMagicRequestMethod($method, &$requestMethod, &$httpMethod)
     {
-        if (strlen($method) > 5 && $pos = strrpos($method, 'Async', -5)) {
-            $httpMethod = substr($method, 0, $pos);
-            $requestMethod = 'requestAsync';
-        } else {
-            $httpMethod = $method;
-            $requestMethod = 'request';
+        $requestMethod = $httpMethod = null;
+
+        foreach ($this->magicRequestMethods as $verb) {
+            if ($method == $verb) {
+                $requestMethod = 'request';
+            } elseif ($method == $verb.'Async') {
+                $requestMethod = 'requestAsync';
+            } elseif ($method == $verb.'Json') {
+                $requestMethod = 'fetchJson';
+            }
+
+            if ($requestMethod) {
+                return (bool) $httpMethod = $verb;
+            }
         }
 
-        if (! in_array($httpMethod, $this->getMagicRequestMethods())) {
-            $httpMethod = $requestMethod = null;
-        }
-
-        return (bool) $httpMethod;
+        return false;
     }
 
     /**
@@ -530,30 +495,6 @@ class HttpClient
         }
 
         return $parameters;
-    }
-
-    /**
-     * Get all allowed magic response methods.
-     *
-     * @return array
-     */
-    protected function getMagicResponseMethods()
-    {
-        return [
-            'getStatusCode', 'getReasonPhrase', 'getProtocolVersion',
-            'getHeaders', 'hasHeader', 'getHeader', 'getHeaderLine', 'getBody',
-        ];
-    }
-
-    /**
-     * Determine if the given method is a magic response method.
-     *
-     * @param  string  $method
-     * @return bool
-     */
-    protected function isMagicResponseMethod($method)
-    {
-        return in_array($method, $this->getMagicResponseMethods());
     }
 
     /**
@@ -591,8 +532,7 @@ class HttpClient
     }
 
     /**
-     * Handle magic method to send request, get response data, or set
-     * request options.
+     * Handle magic option/request methods.
      *
      * @param  string  $method
      * @param  array  $parameters
@@ -605,10 +545,6 @@ class HttpClient
     {
         if ($this->isMagicRequestMethod($method, $requestMethod, $httpMethod)) {
             return $this->$requestMethod(...$this->getRequestParameters($httpMethod, $parameters));
-        }
-
-        if ($this->isMagicResponseMethod($method)) {
-            return $this->getResponseData($method, $parameters);
         }
 
         if ($this->isMagicOptionMethod($method, $option)) {
