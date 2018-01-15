@@ -10,28 +10,27 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use GuzzleHttp\RequestOptions;
-use Psr\Http\Message\UriInterface;
 
 /**
- * @method \Psr\Http\Message\ResponseInterface|null get(string|UriInterface $uri = '', array $options = [])
- * @method \Psr\Http\Message\ResponseInterface|null head(string|UriInterface $uri = '', array $options = [])
- * @method \Psr\Http\Message\ResponseInterface|null post(string|UriInterface $uri = '', array $options = [])
- * @method \Psr\Http\Message\ResponseInterface|null put(string|UriInterface $uri = '', array $options = [])
- * @method \Psr\Http\Message\ResponseInterface|null patch(string|UriInterface $uri = '', array $options = [])
- * @method \Psr\Http\Message\ResponseInterface|null delete(string|UriInterface $uri = '', array $options = [])
- * @method \Psr\Http\Message\ResponseInterface|null options(string|UriInterface $uri = '', array $options = [])
- * @method mixed getJson(string|UriInterface $uri = '', array $options = [])
- * @method mixed postJson(string|UriInterface $uri = '', array $options = [])
- * @method mixed putJson(string|UriInterface $uri = '', array $options = [])
- * @method mixed patchJson(string|UriInterface $uri = '', array $options = [])
- * @method mixed deleteJson(string|UriInterface $uri = '', array $options = [])
- * @method \GuzzleHttp\Promise\PromiseInterface getAsync(string|UriInterface $uri = '', array $options = [])
- * @method \GuzzleHttp\Promise\PromiseInterface headAsync(string|UriInterface $uri = '', array $options = [])
- * @method \GuzzleHttp\Promise\PromiseInterface postAsync(string|UriInterface $uri = '', array $options = [])
- * @method \GuzzleHttp\Promise\PromiseInterface putAsync(string|UriInterface $uri = '', array $options = [])
- * @method \GuzzleHttp\Promise\PromiseInterface patchAsync(string|UriInterface $uri = '', array $options = [])
- * @method \GuzzleHttp\Promise\PromiseInterface deleteAsync(string|UriInterface $uri = '', array $options = [])
- * @method \GuzzleHttp\Promise\PromiseInterface optionsAsync(string|UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null get(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null head(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null post(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null put(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null patch(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null delete(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \Psr\Http\Message\ResponseInterface|null options(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method mixed getJson(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method mixed postJson(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method mixed putJson(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method mixed patchJson(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method mixed deleteJson(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface getAsync(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface headAsync(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface postAsync(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface putAsync(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface patchAsync(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface deleteAsync(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
+ * @method \GuzzleHttp\Promise\PromiseInterface optionsAsync(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])
  * @method $this allowRedirects(bool|array $value)
  * @method $this auth(array|string|null $value)
  * @method $this body(string|resource|\Psr\Http\Message\StreamInterface $value)
@@ -135,15 +134,11 @@ class HttpClient
      * Create a new HTTP client instance.
      *
      * @param  array|string|\Psr\Http\Message\UriInterface  $options  base URI or any request options
-     *
-     * @throws \InvalidArgumentException
      */
     public function __construct($options = [])
     {
-        if (is_string($options) || $options instanceof UriInterface) {
+        if (! is_array($options)) {
             $options = ['base_uri' => $options];
-        } elseif (! is_array($options)) {
-            throw new InvalidArgumentException('Options must be a string, UriInterface, or an array');
         }
 
         $this->client = new Client(

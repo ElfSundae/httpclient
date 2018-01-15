@@ -50,12 +50,6 @@ class HttpClientTest extends TestCase
         $this->assertSame('http://example.com', (string) $client->getClient()->getConfig('base_uri'));
     }
 
-    public function testExceptionWhenInvalidAruguments()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $client = new HttpClient(new \stdClass);
-    }
-
     public function testGetOption()
     {
         $client = new HttpClient(['foo' => 'bar']);
