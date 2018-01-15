@@ -112,6 +112,8 @@ HttpClient::setDefaultOptions([
 
 ### Catching Guzzle Exceptions
 
+The `catchExceptions` method determines whether to catch Guzzle exceptions or not.
+
 ```php
 $response = $client->catchExceptions(true)->get('/api/path');
 
