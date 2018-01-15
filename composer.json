@@ -1,7 +1,7 @@
 {
     "name": "elfsundae/httpclient",
     "type": "library",
-    "description": "HttpClient is a smart Guzzle wrapper provides convenient method chaining, global request options, and magic methods to customize any request options.",
+    "description": "A smart Guzzle wrapper provides convenient method chaining, global request options, and magic methods to customize request options.",
     "keywords": ["http", "client", "guzzle", "chaining"],
     "homepage": "https://github.com/ElfSundae/httpclient",
     "license": "MIT",

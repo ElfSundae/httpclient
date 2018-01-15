@@ -9,7 +9,7 @@
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/ElfSundae/httpclient/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/ElfSundae/httpclient/?branch=master)
 [![Total Downloads](https://img.shields.io/packagist/dt/elfsundae/httpclient.svg?style=flat-square)](https://packagist.org/packages/elfsundae/httpclient)
 
-HttpClient is a smart [Guzzle](https://github.com/guzzle/guzzle) wrapper provides convenient method chaining, global request options, and magic methods to customize any request options.
+HttpClient is a smart [Guzzle](https://github.com/guzzle/guzzle) wrapper provides convenient method chaining, global request options, and magic methods to customize [request options][].
 
 ## Installation
 
@@ -19,67 +19,106 @@ $ composer require elfsundae/httpclient
 
 ## Usage
 
-### Create HTTP Client Instance
-
-You can create a HTTP client instance with a base URI or an array of [request options][]:
-
 ```php
 use ElfSundae\HttpClient;
-
-$httpbin = new HttpClient('http://httpbin.org');
-
-$github = new HttpClient([
-    'base_uri' => 'https://api.github.com',
-    'timeout' => 20,
-    'headers' => [
-        'User-Agent' => 'HttpClient/2.0',
-    ],
-]);
 ```
 
-### Configure Request Options
-
-You can use the `camelCase` key of any [request option][request options] as a method of the client:
+### Fetching Response Content
 
 ```php
-$client = HttpClient::create('http://example.com')
-    ->connectTimeout(5)
-    ->timeout(20)
-    ->httpErrors(false)
-    ->version(2)
-    ->auth(['username', 'password'])
-    ->cookies(true)
-    ->headers([
-        'X-Foo' => 'Bar',
-    ]);
+$html = (new HttpClient)->fetchContent('http://httpbin.org');
+
+$data = (new HttpClient)->fetchJson('https://httpbin.org/ip');
 ```
 
-You can also use the `option` method on the client to set request options using "dot" notation:
+### Making Requests
+
+```php
+$client = HttpClient::create('https://httpbin.org')
+    ->catchExceptions(true)
+    ->httpErrors(false)
+    ->auth(['user', 'passwd']);
+
+$query = $client->query(['foo' => 'bar'])->getJson('/get');
+
+$form = $client->formParams(['foo' => 'bar'])->postJson('/post');
+
+$json = $client->json(['foo' => 'bar'])->putJson('/put');
+
+$download = $client->saveTo('image.png')->get('/image/png');
+
+$file = fopen('image.png', 'r');
+$uploadBody = $client->body($file)->postJson('/post');
+
+$multipart = [
+    'foo' => 'bar',
+    'file' => $file,
+    'image' => [
+        'contents' => fopen('image.png', 'r'),
+        'filename' => 'filename.png',
+    ],
+];
+$formData = $client->multipart($multipart)->postJson('/post');
+```
+
+### Applying Request Options
+
+Using the `option` method:
 
 ```php
 $client
-    ->option('headers.Accept', 'application/json')
+    ->option('cert', $cert)
     ->option([
-        'cookies' => true,
+        'debug' => true,
         'headers.Content-Type' => 'application/json',
     ]);
 ```
 
-In addition, you may want to use `header`, `accept`, `acceptJson`, `userAgent` and `contentType` methods to set request headers:
+Or using `camelCase` of any option name as a method on the client:
 
 ```php
 $client
-    ->contentType('text/plain')
-    ->acceptJson()
-    ->userAgent('HttpClient/2.0')
-    ->header('X-Foo', 'bar');
+    ->allowRedirects(false)
+    ->timeout(20)
+    ->cookies($cookieJar)
+    ->headers([
+        'X-Foo' => 'foo',
+    ]);
 ```
 
-### Global Request Options
+In addition, you can use `header`, `accept`, `acceptJson`, `userAgent` or `contentType` to set request headers:
 
-### Send Requests
+```php
+$client
+    ->header('X-Foo', 'foo');
+    ->header('X-Bar', 'bar');
+    ->acceptJson()
+    ->contentType('text/plain')
+    ->userAgent('HttpClient/2.0')
+```
 
-### Response
+### Global Default Request Options
+
+The static `setDefaultOptions` method can be used to configure default options for every new client instance:
+
+```php
+HttpClient::setDefaultOptions([
+    'http_errors' => false,
+    'timeout' => 20,
+]);
+```
+
+### Catching Guzzle Exceptions
+
+```php
+$response = $client->catchExceptions(true)->get('/api/path');
+
+try {
+    $response = $client->catchExceptions(false)->get('/api/path');
+} catch (Exception $e) {
+    // ...
+}
+```
 
 ## Testing
 
