@@ -103,7 +103,9 @@ The static `setDefaultOptions` method can be used to configure default options f
 
 ```php
 HttpClient::setDefaultOptions([
+    'catch_exceptions' => true,
     'http_errors' => false,
+    'connect_timeout' => 5,
     'timeout' => 20,
 ]);
 ```
