@@ -141,11 +141,27 @@ class HttpClient
             $options = ['base_uri' => $options];
         }
 
-        $this->option(static::defaultOptions())->option($options);
-
-        $this->client = new Client($this->options);
+        $this->client = new Client(
+            $this->mergeArray(static::defaultOptions(), $options)
+        );
 
         $this->options = $this->client->getConfig();
+    }
+
+    /**
+     * Merge two arrays using "dot" notation.
+     *
+     * @param  array  $arr1
+     * @param  array  $arr2
+     * @return array
+     */
+    protected function mergeArray(array $arr1, array $arr2)
+    {
+        foreach ($arr2 as $key => $value) {
+            Arr::set($arr1, $key, $value);
+        }
+
+        return $arr1;
     }
 
     /**
@@ -179,11 +195,10 @@ class HttpClient
      */
     public function option($key, $value = null)
     {
-        $keys = is_array($key) ? $key : [$key => $value];
-
-        foreach ($keys as $key => $value) {
-            Arr::set($this->options, $key, $value);
-        }
+        $this->options = $this->mergeArray(
+            $this->options,
+            is_array($key) ? $key : [$key => $value]
+        );
 
         return $this;
     }
@@ -390,7 +405,7 @@ class HttpClient
      */
     protected function getRequestOptions(array $options = [])
     {
-        $options = array_replace_recursive($this->options, $options);
+        $options = $this->mergeArray($this->options, $options);
 
         $this->removeOption([
             'body', 'form_params', 'multipart', 'json', 'query',

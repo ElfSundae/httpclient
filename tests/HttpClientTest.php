@@ -36,8 +36,10 @@ class HttpClientTest extends TestCase
 
     public function testCreateWithOptions()
     {
-        $client = new HttpClient(['foo' => 'bar']);
-        $this->assertSame('bar', $client->getClient()->getConfig('foo'));
+        HttpClient::setDefaultOptions(['foo' => 'bar']);
+        $client = new HttpClient(['foo' => 'baz', 'a.b' => 'c']);
+        $this->assertSame('baz', $client->getClient()->getConfig('foo'));
+        $this->assertArraySubset(['a' => ['b' => 'c']], $client->getClient()->getConfig());
     }
 
     public function testCreateWithBaseUri()
