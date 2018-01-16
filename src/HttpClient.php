@@ -469,26 +469,27 @@ class HttpClient
             }
 
             if ($requestMethod) {
-                return (bool) $httpMethod = $verb;
+                $httpMethod = $verb;
+                break;
             }
         }
 
-        return false;
+        return ! is_null($requestMethod);
     }
 
     /**
      * Get parameters for the request() method from the magic request call.
      *
-     * @param  string  $method
+     * @param  string  $verb
      * @param  array  $parameters
      * @return array
      */
-    protected function getRequestParameters($method, array $parameters)
+    protected function getRequestParameters($verb, array $parameters)
     {
         if (empty($parameters)) {
-            $parameters = ['', $method];
+            $parameters = ['', $verb];
         } else {
-            array_splice($parameters, 1, 0, $method);
+            array_splice($parameters, 1, 0, $verb);
         }
 
         return $parameters;
@@ -540,8 +541,8 @@ class HttpClient
      */
     public function __call($method, $parameters)
     {
-        if ($this->isMagicRequestMethod($method, $requestMethod, $httpMethod)) {
-            return $this->$requestMethod(...$this->getRequestParameters($httpMethod, $parameters));
+        if ($this->isMagicRequestMethod($method, $request, $verb)) {
+            return $this->$request(...$this->getRequestParameters($verb, $parameters));
         }
 
         if ($this->isMagicOptionMethod($method, $option)) {
