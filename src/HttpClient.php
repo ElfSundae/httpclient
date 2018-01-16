@@ -189,19 +189,6 @@ class HttpClient
     }
 
     /**
-     * Merge the given options to the request options.
-     *
-     * @param  array  $options
-     * @return $this
-     */
-    public function mergeOptions(array $options)
-    {
-        $this->options = array_replace_recursive($this->options, $options);
-
-        return $this;
-    }
-
-    /**
      * Remove one or many request options using "dot" notation.
      *
      * @param  array|string  $keys

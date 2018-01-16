@@ -65,36 +65,10 @@ class HttpClientTest extends TestCase
         $client = new HttpClient;
         $client->option('foo', 'bar');
         $this->assertSame('bar', $client->getOption('foo'));
-        $client->option(['a' => 'A', 'b' => 'B']);
-        $this->assertArraySubset(['a' => 'A', 'b' => 'B'], $client->getOption());
-    }
-
-    public function testMergeOptions()
-    {
-        $client = new HttpClient([
-            'a' => 'A',
-            'b' => [
-                'b1' => 'B1',
-                'b2' => 'B2',
-            ],
-        ]);
-        $client->mergeOptions([
-            'a' => 'AA',
-            'b' => [
-                'b2' => 'BB2',
-                'b3' => 'BB3',
-            ],
-            'c' => 'CC',
-        ]);
-        $this->assertArraySubset([
-            'a' => 'AA',
-            'b' => [
-                'b1' => 'B1',
-                'b2' => 'BB2',
-                'b3' => 'BB3',
-            ],
-            'c' => 'CC',
-        ], $client->getOption());
+        $client->option(['a' => 'A', 'b.b1' => 'B1']);
+        $this->assertArraySubset(['a' => 'A', 'b' => ['b1' => 'B1']], $client->getOption());
+        $client->option(['b.b1' => 'BB1', 'b.b2' => 'BB2']);
+        $this->assertArraySubset(['b' => ['b1' => 'BB1', 'b2' => 'BB2']], $client->getOption());
     }
 
     public function testRemoveOption()
