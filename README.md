@@ -107,6 +107,7 @@ HttpClient::setDefaultOptions([
     'http_errors' => false,
     'connect_timeout' => 5,
     'timeout' => 20,
+    'headers.User-Agent' => 'HttpClient/2.0',
 ]);
 ```
 
