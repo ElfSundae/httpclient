@@ -468,7 +468,7 @@ class HttpClient
                 $requestMethod = 'fetchJson';
             }
 
-            if (! is_null($requestMethod)) {
+            if ($requestMethod) {
                 $httpMethod = $verb;
 
                 return true;
