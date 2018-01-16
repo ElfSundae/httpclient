@@ -468,13 +468,14 @@ class HttpClient
                 $requestMethod = 'fetchJson';
             }
 
-            if ($requestMethod) {
+            if (! is_null($requestMethod)) {
                 $httpMethod = $verb;
-                break;
+
+                return true;
             }
         }
 
-        return ! is_null($requestMethod);
+        return false;
     }
 
     /**
