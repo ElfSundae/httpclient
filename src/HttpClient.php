@@ -141,9 +141,9 @@ class HttpClient
             $options = ['base_uri' => $options];
         }
 
-        $this->client = new Client(
-            array_replace_recursive(static::defaultOptions(), $options)
-        );
+        $this->option(static::defaultOptions())->option($options);
+
+        $this->client = new Client($this->options);
 
         $this->options = $this->client->getConfig();
     }
