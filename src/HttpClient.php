@@ -2,14 +2,14 @@
 
 namespace ElfSundae;
 
-use Exception;
-use ReflectionClass;
-use GuzzleHttp\Client;
 use BadMethodCallException;
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use GuzzleHttp\RequestOptions;
+use ReflectionClass;
 
 /**
  * @method \Psr\Http\Message\ResponseInterface|null get(string|\Psr\Http\Message\UriInterface $uri = '', array $options = [])

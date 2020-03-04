@@ -1,12 +1,12 @@
 <?php
 
-use Mockery as m;
-use GuzzleHttp\Psr7\Uri;
 use ElfSundae\HttpClient;
-use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
+use Mockery as m;
+use PHPUnit\Framework\TestCase;
 
 class HttpClientTest extends TestCase
 {
