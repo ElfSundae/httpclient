@@ -14,11 +14,11 @@ class HttpClientTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    protected function tearDown(): void
-    {
-        HttpClient::setDefaultOptions([]);
-        m::close();
-    }
+    // protected function tearDown(): void
+    // {
+    //     HttpClient::setDefaultOptions([]);
+    //     m::close();
+    // }
 
     public function testInstantiation()
     {
