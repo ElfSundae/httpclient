@@ -1,8 +1,10 @@
 <?php
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use ElfSundae\HttpClient;
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
 use Mockery as m;
@@ -10,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 
 class HttpClientTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     protected function tearDown(): void
     {
         HttpClient::setDefaultOptions([]);
@@ -225,7 +229,7 @@ class HttpClientTest extends TestCase
         $guzzle->shouldReceive('request')
             ->with('GET', 'path', m::subset(['body' => 'request body']))
             ->once()
-            ->andReturn('response');
+            ->andReturn(new Response);
         $client = new TestClient;
         $client->setGuzzle($guzzle);
         $client->option('body', 'request body');
@@ -240,7 +244,7 @@ class HttpClientTest extends TestCase
         $guzzle->shouldReceive('request')
             ->with('POST', 'path', m::subset(['headers' => ['Accept' => 'application/json']]))
             ->once()
-            ->andReturn('response');
+            ->andReturn(new Response);
         $client->setGuzzle($guzzle);
         $client->requestJson('path', 'POST');
         $this->assertNull($client->getOption('headers.Accept'));
@@ -253,9 +257,9 @@ class HttpClientTest extends TestCase
         $guzzle->shouldReceive('requestAsync')
             ->with('POST', 'path', m::subset(['a' => 'A', 'b' => 'B']))
             ->once()
-            ->andReturn('promise');
+            ->andReturn($promise = new Promise);
         $client->setGuzzle($guzzle);
-        $this->assertSame('promise', $client->requestAsync('path', 'POST', ['b' => 'B']));
+        $this->assertSame($promise, $client->requestAsync('path', 'POST', ['b' => 'B']));
     }
 
     public function testFetchContent()
@@ -300,6 +304,7 @@ class HttpClientTest extends TestCase
     {
         $client = new TestClient;
         $jsonResponse = new Response(200, [], json_encode(['data' => 'msg']));
+        $promise = new Promise;
 
         foreach (['get', 'head', 'put', 'post', 'patch', 'delete', 'options'] as $method) {
             $guzzle = m::mock(Guzzle::class);
@@ -316,10 +321,10 @@ class HttpClientTest extends TestCase
             $guzzle->shouldReceive('requestAsync')
                 ->with($method, 'path', m::subset(['foo' => $method]))
                 ->once()
-                ->andReturn($method);
+                ->andReturn($promise);
             $client->setGuzzle($guzzle);
             $response = $client->{$method.'Async'}('path', ['foo' => $method]);
-            $this->assertSame($method, $response);
+            $this->assertSame($promise, $response);
         }
     }
 
